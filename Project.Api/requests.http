@@ -1,0 +1,29 @@
+@host = http://localhost:5000/api/v1
+
+###
+GET {{host}}/products
+
+###
+POST {{host}}/products
+Content-Type: application/json
+
+{
+    "name": "Product 2",
+    "price": 29.99,
+    "discount": 20,
+    "releaseDate": "2025-09-07T10:18:52.467Z"
+}
+
+###
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "fatima@gmail.com",
+    "password": "fatima123"
+}
+
+
+###
+GET {{host}}/books
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAiLCJleHAiOjE3NjA5NTAzNDYsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiMDE5OWQyOTYtMWNkYi03Y2I4LTk0ZGEtZDc3ZmM2MjY5MWZlIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiZmF0aW1hQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik5vbmUiLCJpYXQiOjE3NjA3Nzc1NDYsIm5iZiI6MTc2MDc3NzU0Nn0.DMzcnWoQb3ENwcFQbaMtoBxMMI9b3MxbmSzYlkEbtHg
