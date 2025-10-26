@@ -71,6 +71,44 @@ namespace Project.Api.Migrations
                     b.ToTable("BooksLanguages");
                 });
 
+            modelBuilder.Entity("Project.Api.Domain.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ParentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PriorityLevel")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.CategoryBook", b =>
+                {
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("BookId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("CategoriesBooks");
+                });
+
             modelBuilder.Entity("Project.Api.Domain.Entities.Language", b =>
                 {
                     b.Property<Guid>("Id")
@@ -136,9 +174,46 @@ namespace Project.Api.Migrations
                     b.Navigation("Language");
                 });
 
+            modelBuilder.Entity("Project.Api.Domain.Entities.Category", b =>
+                {
+                    b.HasOne("Project.Api.Domain.Entities.Category", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.CategoryBook", b =>
+                {
+                    b.HasOne("Project.Api.Domain.Entities.Book", "Book")
+                        .WithMany("CategoryBooks")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Project.Api.Domain.Entities.Category", "Category")
+                        .WithMany("Books")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("Project.Api.Domain.Entities.Book", b =>
                 {
+                    b.Navigation("CategoryBooks");
+
                     b.Navigation("Languages");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.Category", b =>
+                {
+                    b.Navigation("Books");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.Language", b =>
