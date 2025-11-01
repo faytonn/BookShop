@@ -7,6 +7,7 @@ using Project.Api.Persistence.Contexts;
 
 namespace Project.Api.Presentation.Controllers;
 
+[Route("api/v1/categories"), ApiController]
 public sealed class CategoriesController(AppDbContext context) : ControllerBase
 {
     [HttpGet]
@@ -17,7 +18,7 @@ public sealed class CategoriesController(AppDbContext context) : ControllerBase
                 c.Id,
                 c.Name,
                 c.PriorityLevel,
-                c.ParentId
+                c.ParentCategoryId
             ));
 
         return Ok(categories);
@@ -35,7 +36,7 @@ public sealed class CategoriesController(AppDbContext context) : ControllerBase
                 c.Id,
                 c.Name,
                 c.PriorityLevel,
-                c.ParentId
+                c.ParentCategoryId
             ))
             .FirstOrDefault();
 
@@ -67,12 +68,12 @@ public sealed class CategoriesController(AppDbContext context) : ControllerBase
     //        return BadRequest("Invalid Category Id.");
 
     //    var subcategories = context.Categories
-    //        .Where(c => c.ParentId == categoryId)
+    //        .Where(c => c.ParentCategoryId == categoryId)
     //        .Select(c => new CategoryResponse(
     //            c.Id,
     //            c.Name,
     //            c.PriorityLevel,
-    //            c.ParentId
+    //            c.ParentCategoryId
     //        ))
     //        .ToList();
 
@@ -96,7 +97,7 @@ public sealed class CategoriesController(AppDbContext context) : ControllerBase
             Id = Guid.CreateVersion7(),
             Name = req.Name,
             PriorityLevel = req.PriorityLevel,
-            ParentId = req.ParentId
+            ParentCategoryId = req.ParentId
         };
 
         try
@@ -108,7 +109,7 @@ public sealed class CategoriesController(AppDbContext context) : ControllerBase
                 newCategory.Id,
                 newCategory.Name,
                 newCategory.PriorityLevel,
-                newCategory.ParentId
+                newCategory.ParentCategoryId
             );
 
             return CreatedAtAction(
@@ -152,7 +153,7 @@ public sealed class CategoriesController(AppDbContext context) : ControllerBase
         {
             category.Name = req.Name;
             category.PriorityLevel = req.PriorityLevel;
-            category.ParentId = req.ParentId;
+            category.ParentCategoryId = req.ParentId;
 
             context.SaveChanges();
 
@@ -160,7 +161,7 @@ public sealed class CategoriesController(AppDbContext context) : ControllerBase
                 category.Id,
                 category.Name,
                 category.PriorityLevel,
-                category.ParentId
+                category.ParentCategoryId
             );
 
             return Ok(response);
@@ -186,7 +187,7 @@ public sealed class CategoriesController(AppDbContext context) : ControllerBase
             return NotFound("Category not found.");
 
         var hasSubcategories = context.Categories
-            .Any(c => c.ParentId == id);
+            .Any(c => c.ParentCategoryId == id);
 
         if (hasSubcategories)
             return BadRequest("Cannot delete category with subcategories. Delete subcategories first.");

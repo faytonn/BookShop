@@ -12,8 +12,8 @@ using Project.Api.Persistence.Contexts;
 namespace Project.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251011090304_Added_Users_Table")]
-    partial class Added_Users_Table
+    [Migration("20251101224522_AddCouponGenerator")]
+    partial class AddCouponGenerator
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,7 +50,7 @@ namespace Project.Api.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
-                    b.PrimitiveCollection<string>("SellerId")
+                    b.PrimitiveCollection<string>("SellerIds")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -72,6 +72,85 @@ namespace Project.Api.Migrations
                     b.HasIndex("LanguageId");
 
                     b.ToTable("BooksLanguages");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ParentCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PriorityLevel")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCategoryId");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.CategoryBook", b =>
+                {
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("BookId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("BooksCategories");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.Coupon", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("DiscountPercentage")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("UsageLimit")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsedCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Coupons");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.Language", b =>
@@ -139,9 +218,55 @@ namespace Project.Api.Migrations
                     b.Navigation("Language");
                 });
 
+            modelBuilder.Entity("Project.Api.Domain.Entities.Category", b =>
+                {
+                    b.HasOne("Project.Api.Domain.Entities.Category", "ParentCategory")
+                        .WithMany()
+                        .HasForeignKey("ParentCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.CategoryBook", b =>
+                {
+                    b.HasOne("Project.Api.Domain.Entities.Book", "Book")
+                        .WithMany("CategoryBooks")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Project.Api.Domain.Entities.Category", "Category")
+                        .WithMany("Books")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.Coupon", b =>
+                {
+                    b.HasOne("Project.Api.Domain.Entities.Category", null)
+                        .WithMany("Coupons")
+                        .HasForeignKey("CategoryId");
+                });
+
             modelBuilder.Entity("Project.Api.Domain.Entities.Book", b =>
                 {
+                    b.Navigation("CategoryBooks");
+
                     b.Navigation("Languages");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.Category", b =>
+                {
+                    b.Navigation("Books");
+
+                    b.Navigation("Coupons");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.Language", b =>
