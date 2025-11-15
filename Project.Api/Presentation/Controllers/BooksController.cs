@@ -54,8 +54,6 @@ public sealed class BooksController(AppDbContext context) : ControllerBase
     [HttpPost, Authorize(Roles = "Seller,Admin,SuperAdmin")]
     public IActionResult AddBook(BookRequest req)
     {
-        req.SellerIds.Add(Guid.CreateVersion7());
-
         var newBook = new Book
         {
             Id = Guid.CreateVersion7(),
@@ -76,7 +74,6 @@ public sealed class BooksController(AppDbContext context) : ControllerBase
                 Price = newBook.Price,
                 Discount = newBook.Discount,
                 ReleaseDate = newBook.ReleaseDate,
-                SellerIds = req.SellerIds,
             });
 
             context.SaveChanges();

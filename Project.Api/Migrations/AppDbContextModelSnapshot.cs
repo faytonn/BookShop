@@ -28,6 +28,9 @@ namespace Project.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<byte>("Discount")
                         .HasColumnType("tinyint");
 
@@ -47,10 +50,6 @@ namespace Project.Api.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
-                    b.PrimitiveCollection<string>("SellerIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("Books");
@@ -69,6 +68,21 @@ namespace Project.Api.Migrations
                     b.HasIndex("LanguageId");
 
                     b.ToTable("BooksLanguages");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.BookSeller", b =>
+                {
+                    b.Property<Guid>("SellerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SellerId", "BookId");
+
+                    b.HasIndex("BookId");
+
+                    b.ToTable("BookSellers");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.Category", b =>
@@ -106,7 +120,7 @@ namespace Project.Api.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("BooksCategories");
+                    b.ToTable("CategoryBook");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.Coupon", b =>
@@ -115,12 +129,12 @@ namespace Project.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<byte>("DiscountPercentage")
                         .HasColumnType("tinyint");
@@ -134,9 +148,6 @@ namespace Project.Api.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("UsageLimit")
                         .HasColumnType("int");
 
@@ -144,8 +155,6 @@ namespace Project.Api.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
 
                     b.ToTable("Coupons");
                 });
@@ -165,11 +174,40 @@ namespace Project.Api.Migrations
                     b.ToTable("Languages");
                 });
 
+            modelBuilder.Entity("Project.Api.Domain.Entities.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderItems")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Orders");
+                });
+
             modelBuilder.Entity("Project.Api.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -185,8 +223,8 @@ namespace Project.Api.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                    b.Property<byte>("Role")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("Surname")
                         .HasColumnType("nvarchar(max)");
@@ -213,6 +251,25 @@ namespace Project.Api.Migrations
                     b.Navigation("Book");
 
                     b.Navigation("Language");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.BookSeller", b =>
+                {
+                    b.HasOne("Project.Api.Domain.Entities.Book", "Book")
+                        .WithMany("BookSellers")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Project.Api.Domain.Entities.User", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Seller");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.Category", b =>
@@ -245,15 +302,21 @@ namespace Project.Api.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Project.Api.Domain.Entities.Coupon", b =>
+            modelBuilder.Entity("Project.Api.Domain.Entities.Order", b =>
                 {
-                    b.HasOne("Project.Api.Domain.Entities.Category", null)
-                        .WithMany("Coupons")
-                        .HasForeignKey("CategoryId");
+                    b.HasOne("Project.Api.Domain.Entities.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.Book", b =>
                 {
+                    b.Navigation("BookSellers");
+
                     b.Navigation("CategoryBooks");
 
                     b.Navigation("Languages");
@@ -262,13 +325,16 @@ namespace Project.Api.Migrations
             modelBuilder.Entity("Project.Api.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Books");
-
-                    b.Navigation("Coupons");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.Language", b =>
                 {
                     b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.User", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

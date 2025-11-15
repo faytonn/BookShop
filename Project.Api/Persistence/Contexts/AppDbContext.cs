@@ -24,19 +24,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
         {
             e.HasKey(nameof(BookLanguage.BookId), nameof(BookLanguage.LanguageId));
         });
-        modelBuilder.Entity<CategoryBook>(e =>
-        {
-            e.HasKey(nameof(CategoryBook.BookId), nameof(CategoryBook.CategoryId));
-        });
-
-
-        modelBuilder.Entity<Category>()
-            .HasOne(c => c.ParentCategory)
-            .WithMany()
-            .HasForeignKey(c => c.ParentCategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        
 
     }
 }

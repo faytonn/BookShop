@@ -24,6 +24,5 @@ public record struct BookRequest(
     decimal Price,
     byte Discount,
     DateTime ReleaseDate,
-    List<Guid> SellerIds,
     IReadOnlyCollection<Guid> LanguageIds
 );
