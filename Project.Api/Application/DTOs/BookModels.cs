@@ -4,9 +4,17 @@ public record struct BookResponse(
     Guid Id,
     string Name,
     decimal Price,
-    decimal Discount,
-    List<string> Sellers
+    byte Discount,
+    IEnumerable<string?> Sellers
 );
+
+
+public record struct BookOrderDTO
+    (
+    Guid Id,
+    string Name,
+    decimal Price
+    );
 
 public record struct BookDetailedResponse(
     Guid Id,
@@ -15,8 +23,8 @@ public record struct BookDetailedResponse(
     byte Discount,
     DateTime ReleaseDate,
     bool IsReleased,
-    List<string> Sellers,
-    List<string> Languages
+    IEnumerable<string?> Sellers,
+    IEnumerable<string?> Languages
 );
 
 public record struct BookRequest(

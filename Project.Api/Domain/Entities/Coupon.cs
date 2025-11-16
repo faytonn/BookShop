@@ -3,7 +3,6 @@ namespace Project.Api.Domain.Entities;
 public class Coupon : AuditableEntity, ISoftDelete
 {
     public string Code { get; set; } = null!;
-    public decimal Price { get; set; }
     public byte DiscountPercentage { get; set; }
     public DateTime ExpirationDate { get; set; }
     public int UsageLimit { get; set; }

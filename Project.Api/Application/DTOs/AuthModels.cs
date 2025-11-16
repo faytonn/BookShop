@@ -1,3 +1,8 @@
-﻿namespace Project.Api.Application.DTOs;
+﻿using Project.Api.Domain.Entities;
 
-public record struct AuthDto(string Email, string Password);
+namespace Project.Api.Application.DTOs;
+
+public record struct RegisterDto(string Email, string Password, UserRole UserRole = UserRole.None);
+
+public record struct LoginDto(string Email, string Password);
+

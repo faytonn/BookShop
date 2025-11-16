@@ -3,7 +3,6 @@ namespace Project.Api.Application.DTOs;
 public record struct CouponResponse(
     Guid Id,
     string Code,
-    decimal Price,
     byte DiscountPercentage,
     DateTime ExpirationDate,
     int UsageLimit,
@@ -13,7 +12,6 @@ public record struct CouponResponse(
 );
 
 public record struct CouponRequest(
-    decimal Price,
     byte DiscountPercentage,
     DateTime ExpirationDate,
     int UsageLimit
@@ -21,7 +19,6 @@ public record struct CouponRequest(
 
 public record struct CouponGenerateRequest(
     int Count,
-    decimal Price,
     byte DiscountPercentage,
     DateTime ExpirationDate,
     int UsageLimit

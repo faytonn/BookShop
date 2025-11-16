@@ -19,7 +19,6 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
             .Select(c => new CouponResponse(
                 c.Id,
                 c.Code,
-                c.Price,
                 c.DiscountPercentage,
                 c.ExpirationDate,
                 c.UsageLimit,
@@ -42,7 +41,6 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
             .Select(c => new CouponResponse(
                 c.Id,
                 c.Code,
-                c.Price,
                 c.DiscountPercentage,
                 c.ExpirationDate,
                 c.UsageLimit,
@@ -69,7 +67,6 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
             .Select(c => new CouponResponse(
                 c.Id,
                 c.Code,
-                c.Price,
                 c.DiscountPercentage,
                 c.ExpirationDate,
                 c.UsageLimit,
@@ -94,7 +91,7 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
     [HttpPost/*, Authorize(Roles = "Admin,SuperAdmin")*/]
     public async Task<IActionResult> CreateCoupon(CouponRequest req)
     {
-        if (req.Price < 0 || req.DiscountPercentage < 0 || req.DiscountPercentage > 100)
+        if (req.DiscountPercentage < 0 || req.DiscountPercentage > 100)
             return BadRequest("Invalid discount values.");
 
         if (req.ExpirationDate <= DateTime.UtcNow)
@@ -112,7 +109,6 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
         {
             Id = Guid.CreateVersion7(),
             Code = code,
-            Price = req.Price,
             DiscountPercentage = req.DiscountPercentage,
             ExpirationDate = req.ExpirationDate,
             UsageLimit = req.UsageLimit,
@@ -128,7 +124,6 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
             var response = new CouponResponse(
                 newCoupon.Id,
                 newCoupon.Code,
-                newCoupon.Price,
                 newCoupon.DiscountPercentage,
                 newCoupon.ExpirationDate,
                 newCoupon.UsageLimit,
@@ -159,7 +154,7 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
         if (req.Count <= 0 || req.Count > 100)
             return BadRequest("Count must be between 1 and 100.");
 
-        if (req.Price < 0 || req.DiscountPercentage < 0 || req.DiscountPercentage > 100)
+        if (req.DiscountPercentage < 0 || req.DiscountPercentage > 100)
             return BadRequest("Invalid discount values.");
 
         if (req.ExpirationDate <= DateTime.UtcNow)
@@ -182,7 +177,6 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
             {
                 Id = Guid.CreateVersion7(),
                 Code = code,
-                Price = req.Price,
                 DiscountPercentage = req.DiscountPercentage,
                 ExpirationDate = req.ExpirationDate,
                 UsageLimit = req.UsageLimit,
@@ -201,7 +195,6 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
             var responses = coupons.Select(c => new CouponResponse(
                 c.Id,
                 c.Code,
-                c.Price,
                 c.DiscountPercentage,
                 c.ExpirationDate,
                 c.UsageLimit,
@@ -234,7 +227,7 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
         if (coupon is null)
             return NotFound("Coupon not found.");
 
-        if (req.Price < 0 || req.DiscountPercentage < 0 || req.DiscountPercentage > 100)
+        if ( req.DiscountPercentage < 0 || req.DiscountPercentage > 100)
             return BadRequest("Invalid discount values.");
 
         if (req.ExpirationDate <= DateTime.UtcNow)
@@ -247,7 +240,6 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
 
         try
         {
-            coupon.Price = req.Price;
             coupon.DiscountPercentage = req.DiscountPercentage;
             coupon.ExpirationDate = req.ExpirationDate;
             coupon.UsageLimit = req.UsageLimit;
@@ -257,7 +249,6 @@ public sealed class CouponsController(AppDbContext context, CouponGenerator coup
             var response = new CouponResponse(
                 coupon.Id,
                 coupon.Code,
-                coupon.Price,
                 coupon.DiscountPercentage,
                 coupon.ExpirationDate,
                 coupon.UsageLimit,

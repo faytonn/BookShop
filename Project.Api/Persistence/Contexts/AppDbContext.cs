@@ -14,9 +14,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
     public DbSet<Book> Books => Set<Book>();
     public DbSet<Language> Languages => Set<Language>();
     public DbSet<BookLanguage> BooksLanguages => Set<BookLanguage>();
+    public DbSet<BookSeller> BookSellers => Set<BookSeller>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<CategoryBook> BooksCategories => Set<CategoryBook>();
     public DbSet<Coupon> Coupons => Set<Coupon>();
+    public DbSet<CategoryBook> CategoriesBooks => Set<CategoryBook>();
+    public DbSet<Order> Orders => Set<Order>(); 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,6 +27,19 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
         {
             e.HasKey(nameof(BookLanguage.BookId), nameof(BookLanguage.LanguageId));
         });
-
+        modelBuilder.Entity<CategoryBook>(e =>
+        {
+            e.HasKey(nameof(CategoryBook.BookId), nameof(CategoryBook.CategoryId));
+        });
+        modelBuilder.Entity<BookSeller>(e =>
+        {
+            e.HasKey(nameof(BookSeller.SellerId), nameof(BookSeller.BookId));
+        });
+        modelBuilder.Entity<Category>()
+            .HasOne(c => c.ParentCategory)
+            .WithMany()
+            .HasForeignKey(c => c.ParentCategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
+}
 }

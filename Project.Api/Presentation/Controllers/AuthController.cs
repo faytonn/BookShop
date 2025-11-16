@@ -11,7 +11,7 @@ namespace Project.Api.Presentation.Controllers;
 public sealed class AuthController(AppDbContext context) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register(AuthDto register)
+    public async Task<IActionResult> Register(RegisterDto register)
     {
         if (string.IsNullOrEmpty(register.Email.Trim()) || string.IsNullOrEmpty(register.Password.Trim())) return BadRequest("Invalid format for email or password");
 
@@ -23,6 +23,7 @@ public sealed class AuthController(AppDbContext context) : ControllerBase
         {
             Email = register.Email.ToLower(),
             HashedPassword = BCrypt.Net.BCrypt.HashPassword(register.Password, BCrypt.Net.BCrypt.GenerateSalt()),
+            Role = register.UserRole
         };
 
         try
@@ -43,7 +44,7 @@ public sealed class AuthController(AppDbContext context) : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(AuthDto login, [FromServices] TokenProvider tokenProvider)
+    public async Task<IActionResult> Login(LoginDto login, [FromServices] TokenProvider tokenProvider)
     {
         if (string.IsNullOrEmpty(login.Email.Trim()) || string.IsNullOrEmpty(login.Password.Trim())) return BadRequest("Invalid format for email or password");
         var user = await context.Users.Where(e => e.Email.Equals(login.Email.ToLower())).FirstOrDefaultAsync();

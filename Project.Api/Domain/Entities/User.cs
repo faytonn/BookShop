@@ -8,9 +8,10 @@ public sealed class User : AuditableEntity, ISoftDelete
     public required string HashedPassword { get; set; }
     public UserRole Role { get; set; }
     public bool IsDeleted { get; set; }
+    public List<Order> Orders { get; set; }
 }
 
-public enum UserRole
+public enum UserRole : byte
 {
     None = 0,
     Seller = 1,
