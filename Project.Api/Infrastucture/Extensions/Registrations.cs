@@ -5,9 +5,12 @@ namespace Project.Api.Infrastucture.Extensions;
 
 public static class Registrations
 {
-    public static void AddInfrastructureRegistrations(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddScoped<TokenProvider>();
-        services.AddScoped<CouponGenerator>();
+        public void AddInfrastructureRegistrations()
+        {
+            services.AddTransient<TokenProvider>();
+            services.AddScoped<CouponGenerator>();
+        }
     }
 }

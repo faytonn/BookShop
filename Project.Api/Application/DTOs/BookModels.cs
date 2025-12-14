@@ -13,7 +13,8 @@ public record struct BookOrderDTO
     (
     Guid Id,
     string Name,
-    decimal Price
+    decimal Price,
+    int Stock
     );
 
 public record struct BookDetailedResponse(

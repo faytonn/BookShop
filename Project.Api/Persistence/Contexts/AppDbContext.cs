@@ -42,4 +42,3 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
-}

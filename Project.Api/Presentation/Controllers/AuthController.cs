@@ -1,57 +1,103 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project.Api.Application.DTOs;
+using Project.Api.Application.Services.Abstractions;
 using Project.Api.Domain.Entities;
 using Project.Api.Infrastucture.Providers.Tokens;
 using Project.Api.Persistence.Contexts;
+using System.Net;
+using System.Runtime.CompilerServices;
+using System.Security.Claims;
 
 namespace Project.Api.Presentation.Controllers;
 
 [Route("api/v1/auth"), ApiController]
-public sealed class AuthController(AppDbContext context) : ControllerBase
+public sealed class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterDto register)
+    public async Task<IActionResult> Register(RegisterRequest registerRequest)
     {
-        if (string.IsNullOrEmpty(register.Email.Trim()) || string.IsNullOrEmpty(register.Password.Trim())) return BadRequest("Invalid format for email or password");
-
-        var isExist = await context.Users.Where(e => e.Email.Equals(register.Email.ToLower())).AnyAsync();
-
-        if (isExist) return BadRequest("User already exists!");
-
-        var newUser = new User
-        {
-            Email = register.Email.ToLower(),
-            HashedPassword = BCrypt.Net.BCrypt.HashPassword(register.Password, BCrypt.Net.BCrypt.GenerateSalt()),
-            Role = register.UserRole
-        };
-
         try
         {
-            context.Users.Add(newUser);
-            await context.SaveChangesAsync();
+            await authService.RegisterAsync(registerRequest);
 
             return Created();
         }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
+        }
         catch (DbUpdateException ex)
         {
-            return BadRequest($"An error occured: {ex.Message}");
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
-            return BadRequest($"An error occured: {ex.Message}");
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
         }
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto login, [FromServices] TokenProvider tokenProvider)
+    public async Task<IActionResult> Login(LoginRequest login, [FromServices] IAuthService authService)
     {
-        if (string.IsNullOrEmpty(login.Email.Trim()) || string.IsNullOrEmpty(login.Password.Trim())) return BadRequest("Invalid format for email or password");
-        var user = await context.Users.Where(e => e.Email.Equals(login.Email.ToLower())).FirstOrDefaultAsync();
-        if (user is null || !BCrypt.Net.BCrypt.Verify(login.Password, user.HashedPassword)) return BadRequest("Invalid email or password!");
 
-        var token = tokenProvider.GenerateJwtToken(user);
+        try
+        {
+            var token = await authService.LoginAsync(login);
+            return Ok(new LoginResponse(token));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
+        }
+        catch (Exception ex)
+        {
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
 
-        return Ok(new { Token = token });
+        }
+
     }
+
+
+    [HttpPatch("Change-password"), Authorize]
+    public async Task<IActionResult> ChangePasswordAsync(ChangePasswordRequest passwordRequest)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User id claim not found");
+
+            await authService.ChangePasswordAsync(Guid.Parse(userId), passwordRequest);
+
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
+        }
+        catch(Exception ex)
+        {
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
+        }
+    }
+
+
+    [HttpDelete("logout"), Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            await authService.LogoutAsync(User);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
+        }
+        catch (Exception ex)
+        {
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
+        }
+    }
+
 }
