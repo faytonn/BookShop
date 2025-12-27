@@ -1,13 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Project.Api.Application.DTOs;
 using Project.Api.Application.Services.Abstractions;
-using Project.Api.Domain.Entities;
-using Project.Api.Infrastucture.Providers.Tokens;
-using Project.Api.Persistence.Contexts;
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace Project.Api.Presentation.Controllers;

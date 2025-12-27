@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Project.Api.Application.DTOs;
 using Project.Api.Application.Services.Abstractions;
-using Project.Api.Domain.Entities;
 using Project.Api.Persistence.Contexts;
 
 namespace Project.Api.Application.Services;
@@ -20,7 +19,6 @@ public sealed class BookService(AppDbContext context) : IBookService
                 b.BookSellers.Select(bs => bs.Seller.Name)
             ))
             .ToListAsync();
-
         return books;
     }
 

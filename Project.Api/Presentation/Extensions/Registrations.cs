@@ -7,7 +7,7 @@ namespace Project.Api.Presentation.Extensions;
 
 public static class Registrations
 {
-    public static void AddPresentationRegistrations(this IServiceCollection services, IWebHostEnvironment env, IConfiguration cfg)
+    public static IServiceCollection AddPresentationRegistrations(this IServiceCollection services, IWebHostEnvironment env, IConfiguration cfg)
     {
         services.AddControllers();
 
@@ -35,6 +35,8 @@ public static class Registrations
         {
             services.AddOpenApi();
         }
+
+        return services;
     }
 
     public static void AddPresentationMiddlewares(this WebApplication app)

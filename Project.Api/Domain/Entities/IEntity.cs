@@ -1,6 +1,8 @@
 namespace Project.Api.Domain.Entities;
 
-public interface IEntity;
+public interface IEntity {
+    Guid Id { get; init; }
+};
 
 public abstract class BaseEntity : IEntity
 {

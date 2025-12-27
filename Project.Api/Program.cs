@@ -1,6 +1,5 @@
 using Project.Api.Application.Extensions;
 using Project.Api.Infrastucture.Extensions;
-using Project.Api.Persistence.Extensions;
 using Project.Api.Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,10 +11,11 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddApplicationRegistrations();
-builder.Services.AddPersistenceRegistrations();
-builder.Services.AddInfrastructureRegistrations();
-builder.Services.AddPresentationRegistrations(builder.Environment, builder.Configuration);
+builder.Services
+    .AddApplicationRegistrations()
+    .AddPersistenceServices()
+    .AddInfrastructureRegistrations()
+    .AddPresentationRegistrations(builder.Environment, builder.Configuration);
 
 var app = builder.Build();
 

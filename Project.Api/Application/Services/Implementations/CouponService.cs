@@ -1,18 +1,16 @@
-using Microsoft.EntityFrameworkCore;
 using Project.Api.Application.DTOs;
 using Project.Api.Application.Services.Abstractions;
-using Project.Api.Domain.Entities;
 using Project.Api.Infrastucture.Providers.Coupons;
-using Project.Api.Persistence.Contexts;
+using Project.Api.Persistence.Repositories.Coupons;
 
 namespace Project.Api.Application.Services;
 
-public sealed class CouponService(AppDbContext context, CouponGenerator couponGenerator) : ICouponService
+public sealed class CouponService(AppDbContext context, CouponGenerator couponGenerator, ICouponRepository couponRepository) : ICouponService
 {
     public IEnumerable<CouponResponse> GetCoupons()
     {
-        var coupons = context.Coupons
-            .Where(c => !c.IsDeleted)
+        var coupons = couponRepository
+            .GetWhereAll(c => !c.IsDeleted)
             .Select(c => new CouponResponse(
                 c.Id,
                 c.Code,

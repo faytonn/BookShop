@@ -7,10 +7,12 @@ public static class Registrations
 {
     extension(IServiceCollection services)
     {
-        public void AddInfrastructureRegistrations()
+        public IServiceCollection AddInfrastructureRegistrations()
         {
             services.AddTransient<TokenProvider>();
             services.AddScoped<CouponGenerator>();
+
+            return services;
         }
     }
 }
