@@ -15,10 +15,6 @@ namespace Project.Api.Presentation.Controllers;
 
 public sealed class OrdersController(AppDbContext context, IOrderService orderService) : ControllerBase
 {
-
-
-
-
     private static string GenerateDisplayCode(Guid id) => $"ORDER{id.ToString("N")[..8].ToUpper()}";
 
     // ORDER6754GBGSF-5656-34343
@@ -40,7 +36,7 @@ public sealed class OrdersController(AppDbContext context, IOrderService orderSe
         {
             return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.Unauthorized);
         }
-        catch(Exception ex) when (ex is InvalidOperationException || ex is DbUpdateException)
+        catch (Exception ex) when (ex is InvalidOperationException || ex is DbUpdateException)
         {
             return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
         }
@@ -49,6 +45,25 @@ public sealed class OrdersController(AppDbContext context, IOrderService orderSe
             return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
         }
     }
+
+    [HttpGet("my"), Authorize]
+    public async Task<IActionResult> GetMyOrders()
+    {
+        try
+        {
+            var result = orderService.GetMyOrders(); 
+            return Ok(result);
+        }
+        catch (InvalidDataException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.Unauthorized);
+        }
+        catch (Exception ex)
+        {
+            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
+        }
+    }
+
 
 
     //admin methodlari
