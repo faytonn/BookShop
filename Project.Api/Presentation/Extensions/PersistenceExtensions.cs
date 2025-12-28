@@ -9,6 +9,8 @@ public static class PersistenceExtensions
         public IServiceCollection AddPersistenceServices()
         {
             services.AddDbContext<AppDbContext>();
+
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<ICouponRepository, CouponRepository>();
 
             return services;

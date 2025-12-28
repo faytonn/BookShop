@@ -21,8 +21,6 @@ builder.Services
 
 var app = builder.Build();
 
-Repository<object>.Configure(app.Services.GetRequiredService<IHttpContextAccessor>();
-
 app.AddPresentationMiddlewares();
 
 app.Run();

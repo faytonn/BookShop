@@ -5,11 +5,11 @@ namespace Project.Api.Persistence.Repositories.Shared;
 public class Repository<T>(AppDbContext context) : IRepository<T> where T : BaseEntity
 {
     private DbSet<T> Table => context.Set<T>();
-    private static CancellationToken _cancellation;
+    private CancellationToken _cancellation;
 
-    public static void Configure(IHttpContextAccessor contextAccessor)
+    public Repository(AppDbContext context, IServiceProvider serviceProvider) : this(context)
     {
-        _cancellation = contextAccessor.HttpContext?.RequestAborted ?? default;
+        _cancellation = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.RequestAborted ?? default;
     }
 
     public void Add(T entity) => Table.Add(entity);
