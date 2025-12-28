@@ -19,14 +19,22 @@ public class Repository<T>(AppDbContext context) : IRepository<T> where T : Base
     public void Add(T entity) => Table.Add(entity);
     public async ValueTask AddAsync(T entity)
     {
+        Console.WriteLine($"Logger is null: {_logger == null}");
+        Console.WriteLine($"CancellationToken.CanBeCanceled: {_cancellation.CanBeCanceled}");
 
         using var reg = _cancellation.Register(() =>
-            _logger.LogWarning("RequestAborted CANCELLED inside Repository<{Entity}>.AddAsync", typeof(T).Name));
+        _logger.LogWarning("RequestAborted CANCELLED inside Repository<{Entity}>.AddAsync", typeof(T).Name));
+        try
+        {
+            await Task.Delay(10_000, _cancellation);
 
-        // simulate work to give you time to cancel the request:
-        await Task.Delay(10_000, _cancellation);
-
-        await Table.AddAsync(entity, _cancellation);
+            await Table.AddAsync(entity, _cancellation);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Request cancelled during AddAsync for {Entity}", typeof(T).Name);
+            throw;
+        }
     }
     public void Update(T entity) => Table.Update(entity);
     public void Remove(T entity) => Table.Remove(entity);
