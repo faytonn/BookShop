@@ -1,6 +1,6 @@
 ﻿namespace Project.Api.Persistence.Repositories.Coupons;
 
-public sealed class CouponRepository(AppDbContext context, IHttpContextAccessor contextAccessor) : Repository<Coupon>(context), ICouponRepository
+public sealed class CouponRepository(AppDbContext context, IHttpContextAccessor contextAccessor, ILogger<Repository<Coupon>> logger) : Repository<Coupon>(context, contextAccessor, logger), ICouponRepository
 {
     private DbSet<Coupon> Coupons => context.Set<Coupon>();
     private CancellationToken cancellation = contextAccessor.HttpContext?.RequestAborted ?? default;
