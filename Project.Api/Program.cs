@@ -4,6 +4,8 @@ using Project.Api.Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
     .AddJsonFile("appsettings.json", optional: false)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
@@ -18,6 +20,8 @@ builder.Services
     .AddPresentationRegistrations(builder.Environment, builder.Configuration);
 
 var app = builder.Build();
+
+Repository<object>.Configure(app.Services.GetRequiredService<IHttpContextAccessor>();
 
 app.AddPresentationMiddlewares();
 

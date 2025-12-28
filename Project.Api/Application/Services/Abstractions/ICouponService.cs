@@ -2,7 +2,7 @@ using Project.Api.Application.DTOs;
 
 namespace Project.Api.Application.Services.Abstractions;
 
-public interface ICouponService
+public interface ICouponService 
 {
     IEnumerable<CouponResponse> GetCoupons();
     Task<CouponResponse?> GetCouponAsync(Guid couponId);

@@ -5,7 +5,7 @@ using Project.Api.Persistence.Repositories.Coupons;
 
 namespace Project.Api.Application.Services;
 
-public sealed class CouponService(AppDbContext context, CouponGenerator couponGenerator, ICouponRepository couponRepository) : ICouponService
+public sealed class CouponService(ICouponRepository couponRepository, CouponGenerator couponGenerator) : ICouponService
 {
     public IEnumerable<CouponResponse> GetCoupons()
     {
@@ -27,8 +27,8 @@ public sealed class CouponService(AppDbContext context, CouponGenerator couponGe
 
     public async Task<CouponResponse?> GetCouponAsync(Guid couponId)
     {
-        var coupon = await context.Coupons
-            .Where(c => c.Id == couponId && !c.IsDeleted)
+        var coupon = await couponRepository
+            .GetWhereAll(c => c.Id == couponId && !c.IsDeleted)
             .Select(c => new CouponResponse(
                 c.Id,
                 c.Code,
@@ -52,8 +52,8 @@ public sealed class CouponService(AppDbContext context, CouponGenerator couponGe
         if (string.IsNullOrWhiteSpace(code))
             throw new ArgumentException("Coupon code is required.");
 
-        var coupon = await context.Coupons
-            .Where(c => c.Code == code.ToUpper() && !c.IsDeleted && c.IsActive)
+        var coupon = await couponRepository
+            .GetWhereAll(c => c.Code == code.ToUpper() && !c.IsDeleted && c.IsActive)
             .Select(c => new CouponResponse(
                 c.Id,
                 c.Code,
@@ -84,7 +84,7 @@ public sealed class CouponService(AppDbContext context, CouponGenerator couponGe
             throw new ArgumentException("Usage limit must be greater than 0.");
 
         var code = couponGenerator.GenerateUniqueCouponCode(
-            code => context.Coupons.Any(c => c.Code == code)
+            code => couponRepository.CodeExistsAsync(code).Result
         );
 
         var newCoupon = new Coupon
@@ -98,8 +98,8 @@ public sealed class CouponService(AppDbContext context, CouponGenerator couponGe
             IsActive = true,
         };
 
-        context.Coupons.Add(newCoupon);
-        await context.SaveChangesAsync();
+        await couponRepository.AddAsync(newCoupon);
+        await couponRepository.SaveChangesAsync();
 
         return new CouponResponse(
             newCoupon.Id,
@@ -132,7 +132,7 @@ public sealed class CouponService(AppDbContext context, CouponGenerator couponGe
         for (int i = 0; i < request.Count; i++)
         {
             var code = couponGenerator.GenerateUniqueCouponCode(
-                code => context.Coupons.Any(c => c.Code == code) || coupons.Any(c => c.Code == code)
+                code => couponRepository.CodeExistsAsync(code).Result || coupons.Any(c => c.Code == code)
             );
 
             var coupon = new Coupon
@@ -149,8 +149,8 @@ public sealed class CouponService(AppDbContext context, CouponGenerator couponGe
             coupons.Add(coupon);
         }
 
-        await context.Coupons.AddRangeAsync(coupons);
-        await context.SaveChangesAsync();
+        await couponRepository.AddRangeAsync(coupons);
+        await couponRepository.SaveChangesAsync();
 
         var responses = coupons.Select(c => new CouponResponse(
             c.Id,
@@ -168,10 +168,10 @@ public sealed class CouponService(AppDbContext context, CouponGenerator couponGe
 
     public async Task<CouponResponse?> UpdateCouponAsync(Guid couponId, CouponRequest request)
     {
-        var coupon = await context.Coupons
-            .FirstOrDefaultAsync(c => c.Id == couponId && !c.IsDeleted);
+        var coupon = await couponRepository
+            .FindAsync(couponId);
 
-        if (coupon is null)
+        if (coupon is null || coupon.IsDeleted)
             return null;
 
         if (request.DiscountPercentage < 0 || request.DiscountPercentage > 100)
@@ -187,7 +187,8 @@ public sealed class CouponService(AppDbContext context, CouponGenerator couponGe
         coupon.ExpirationDate = request.ExpirationDate;
         coupon.UsageLimit = request.UsageLimit;
 
-        await context.SaveChangesAsync();
+        couponRepository.Update(coupon);   
+        await couponRepository.SaveChangesAsync();
 
         return new CouponResponse(
             coupon.Id,
@@ -203,42 +204,42 @@ public sealed class CouponService(AppDbContext context, CouponGenerator couponGe
 
     public async Task<bool> ActivateCouponAsync(Guid couponId)
     {
-        var coupon = await context.Coupons
-            .FirstOrDefaultAsync(c => c.Id == couponId && !c.IsDeleted);
+        var coupon = await couponRepository
+            .FindAsync(couponId);
 
-        if (coupon is null)
+        if (coupon is null || coupon.IsDeleted)
             return false;
 
         coupon.IsActive = true;
-        await context.SaveChangesAsync();
+        await couponRepository.SaveChangesAsync();
 
         return true;
     }
 
     public async Task<bool> DeactivateCouponAsync(Guid couponId)
     {
-        var coupon = await context.Coupons
-            .FirstOrDefaultAsync(c => c.Id == couponId && !c.IsDeleted);
+        var coupon = await couponRepository
+            .FindAsync(couponId);
 
-        if (coupon is null)
+        if (coupon is null || coupon.IsDeleted)
             return false;
 
         coupon.IsActive = false;
-        await context.SaveChangesAsync();
+        await couponRepository.SaveChangesAsync();
 
         return true;
     }
 
     public async Task<bool> DeleteCouponAsync(Guid couponId)
     {
-        var coupon = await context.Coupons
-            .FirstOrDefaultAsync(c => c.Id == couponId && !c.IsDeleted);
+        var coupon = await couponRepository
+            .FindAsync(couponId);
 
-        if (coupon is null)
+        if (coupon is null || coupon.IsDeleted)
             return false;
 
         coupon.IsDeleted = true;
-        await context.SaveChangesAsync();
+        await couponRepository.SaveChangesAsync();
 
         return true;
     }
