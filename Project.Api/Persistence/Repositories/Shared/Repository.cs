@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using Azure.Core;
+using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 
 namespace Project.Api.Persistence.Repositories.Shared;
 
@@ -6,14 +8,26 @@ public class Repository<T>(AppDbContext context) : IRepository<T> where T : Base
 {
     private DbSet<T> Table => context.Set<T>();
     private CancellationToken _cancellation;
+    private readonly ILogger<Repository<T>> _logger;
 
-    public Repository(AppDbContext context, IServiceProvider serviceProvider) : this(context)
+    public Repository(AppDbContext context, IHttpContextAccessor contextAccessor, ILogger<Repository<T>> logger) : this(context)
     {
-        _cancellation = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.RequestAborted ?? default;
+        _logger = logger;
+        _cancellation = contextAccessor.HttpContext?.RequestAborted ?? default;
     }
 
     public void Add(T entity) => Table.Add(entity);
-    public async ValueTask AddAsync(T entity) => await Table.AddAsync(entity, _cancellation);
+    public async ValueTask AddAsync(T entity)
+    {
+
+        using var reg = _cancellation.Register(() =>
+            _logger.LogWarning("RequestAborted CANCELLED inside Repository<{Entity}>.AddAsync", typeof(T).Name));
+
+        // simulate work to give you time to cancel the request:
+        await Task.Delay(10_000, _cancellation);
+
+        await Table.AddAsync(entity, _cancellation);
+    }
     public void Update(T entity) => Table.Update(entity);
     public void Remove(T entity) => Table.Remove(entity);
     public int SaveChanges() => context.SaveChanges();
