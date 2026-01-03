@@ -1,6 +1,6 @@
 ﻿namespace Project.Api.Domain.Entities
 {
-    public class CategoryBook
+    public class CategoryBook : Entity
     {
         public Guid BookId { get; set; }
         public Book Book { get; set; } 

@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Logging.AddConsole();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);
+builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
     .AddJsonFile("appsettings.json", optional: false)
@@ -25,11 +25,5 @@ var app = builder.Build();
 
 app.AddPresentationMiddlewares();
 
-app.MapGet("/test", (ILogger<Program> logger) => 
-{
-    logger.LogWarning("warning salam test1test2");
-    return Results.Ok();
-
-});
 
 app.Run();

@@ -2,7 +2,7 @@
 
 namespace Project.Api.Domain.Entities
 {
-    public class Order : AuditableEntity
+    public class Order : AuditableEntity, ISoftDelete
     {
         public Guid UserId { get; set; }
         public User User { get; set; }
@@ -13,5 +13,6 @@ namespace Project.Api.Domain.Entities
         public string OrderItems { get; set; }  //List<orderitemdto>
 
         public decimal TotalPrice { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

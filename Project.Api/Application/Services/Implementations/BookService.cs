@@ -1,16 +1,19 @@
-using Microsoft.EntityFrameworkCore;
 using Project.Api.Application.DTOs;
 using Project.Api.Application.Services.Abstractions;
-using Project.Api.Persistence.Contexts;
+using Project.Api.Persistence.Repositories.BookLanguages;
+using Project.Api.Persistence.Repositories.Books;
+using Project.Api.Persistence.Repositories.BookSellers;
 
 namespace Project.Api.Application.Services;
 
-public sealed class BookService(AppDbContext context) : IBookService
+public sealed class BookService(IBookRepository bookRepository,
+                                IBookLanguageRepository bookLanguageRepository, 
+                                IBookSellerRepository bookSellerRepository) : IBookService
 {
     public async Task<IEnumerable<BookResponse>> GetBooksAsync()
     {
-        var books = await context.Books
-            .Include(b => b.BookSellers)
+        var books = await bookRepository
+            .GetBooksWithSellers()
             .Select(b => new BookResponse(
                 b.Id,
                 b.Name,
@@ -24,9 +27,8 @@ public sealed class BookService(AppDbContext context) : IBookService
 
     public async Task<BookDetailedResponse?> GetBookAsync(Guid bookId)
     {
-        var book = await context.Books
-            .Include(b => b.Languages)
-            .Include(b => b.BookSellers)
+        var book = await bookRepository
+            .GetBooksWithLanguagesThenSellers()
             .Where(b => b.Id == bookId)
             .Select(b => new BookDetailedResponse(
                 b.Id,
@@ -54,15 +56,15 @@ public sealed class BookService(AppDbContext context) : IBookService
             ReleaseDate = request.ReleaseDate,
         };
 
-        using var transaction = await context.Database.BeginTransactionAsync();
+        using var transaction = await bookRepository.BeginTransactionAsync();
 
         try
         {
-            context.Books.Add(newBook);
+            bookRepository.Add(newBook);
 
             foreach (var langId in request.LanguageIds)
             {
-                context.BooksLanguages.Add(new BookLanguage
+                bookLanguageRepository.Add(new BookLanguage
                 {
                     BookId = newBook.Id,
                     LanguageId = langId,
@@ -75,9 +77,9 @@ public sealed class BookService(AppDbContext context) : IBookService
                 SellerId = sellerId
             };
 
-            context.BookSellers.Add(bookSeller);
+            bookSellerRepository.Add(bookSeller);
 
-            await context.SaveChangesAsync();
+            await bookRepository.SaveChangesAsync();
             await transaction.CommitAsync();
 
             return newBook.Id;
@@ -91,7 +93,7 @@ public sealed class BookService(AppDbContext context) : IBookService
 
     public async Task<bool> UpdateBookAsync(Guid bookId, BookRequest request)
     {
-        var book = await context.Books.FirstOrDefaultAsync(b => b.Id == bookId);
+        var book = await bookRepository.FindAsync(bookId);
         if (book is null)
             return false;
 
@@ -100,19 +102,19 @@ public sealed class BookService(AppDbContext context) : IBookService
         book.Discount = request.Discount;
         book.ReleaseDate = request.ReleaseDate;
 
-        await context.SaveChangesAsync();
+        await bookRepository.SaveChangesAsync();
 
         return true;
     }
 
     public async Task<bool> DeleteBookAsync(Guid bookId)
     {
-        var book = await context.Books.FirstOrDefaultAsync(b => b.Id == bookId);
+        var book = await bookRepository.FindAsync(bookId);
         if (book is null)
             return false;
 
-        context.Books.Remove(book);
-        await context.SaveChangesAsync();
+        bookRepository.Remove(book);
+        await bookRepository.SaveChangesAsync();
 
         return true;
     }

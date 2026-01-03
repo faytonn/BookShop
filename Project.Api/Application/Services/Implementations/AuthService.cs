@@ -8,17 +8,20 @@ using Project.Api.Application.Services.Abstractions;
 using Project.Api.Domain.Entities;
 using Project.Api.Infrastucture.Providers.Tokens;
 using Project.Api.Persistence.Contexts;
+using Project.Api.Persistence.Repositories.Users;
 using System.Net;
 using System.Security.Claims;
 
 namespace Project.Api.Application.Services.Implementations;
 
-public sealed class AuthService(AppDbContext context, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
+public sealed class AuthService(IUserRepository userRepository, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
 {
     public async Task<string> LoginAsync(LoginRequest request)
     {
-        if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim())) throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
-        var user = await context.Users.Where(e => e.Email.Equals(request.Email.ToLower())).FirstOrDefaultAsync();
+        if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim())) 
+            throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
+        var user = await userRepository.GetWhereAll(e => e.Email.Equals(request.Email.ToLower()))
+                                       .FirstOrDefaultAsync();
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.HashedPassword)) throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
 
         var token = tokenProvider.GenerateJwtToken(user);
@@ -30,7 +33,8 @@ public sealed class AuthService(AppDbContext context, /*[FromServices] */TokenPr
     {
         if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim())) throw new InvalidOperationException("Invalid format for email or password");
         var requestEmail = request.Email.Trim().ToLower();
-        var isExist = await context.Users.Where(e => e.Email.Equals(requestEmail)).AnyAsync();
+        var isExist = await userRepository.GetWhereAll(e => e.Email.Equals(requestEmail))
+                                          .AnyAsync();
 
         if (isExist) throw new/* BadRequest*/InvalidOperationException("User already exists!");
 
@@ -43,8 +47,8 @@ public sealed class AuthService(AppDbContext context, /*[FromServices] */TokenPr
 
         try
         {
-            context.Users.Add(newUser);
-            await context.SaveChangesAsync();
+            userRepository.Add(newUser);
+            await userRepository.SaveChangesAsync();
         }
         catch (DbUpdateException ex)
         {
@@ -58,11 +62,11 @@ public sealed class AuthService(AppDbContext context, /*[FromServices] */TokenPr
 
     public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequest passwordRequest)
     {
-        var user = await context.Users.FindAsync(userId);
+        var user = await userRepository.FindAsync(userId);
         if (user is null)
             throw new InvalidOperationException("No such user exists.");
 
-        bool isPasswordValid = !BCrypt.Net.BCrypt.Verify(passwordRequest.OldPassword, user.HashedPassword);
+        bool isPasswordValid = BCrypt.Net.BCrypt.Verify(passwordRequest.OldPassword, user.HashedPassword);
 
         if (!isPasswordValid)
             throw new InvalidOperationException("Passwords do not match.");
@@ -73,7 +77,7 @@ public sealed class AuthService(AppDbContext context, /*[FromServices] */TokenPr
         try
         {
             user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(passwordRequest.NewPassword, BCrypt.Net.BCrypt.GenerateSalt());
-            await context.SaveChangesAsync();
+            await userRepository.SaveChangesAsync();
         }
         catch (DbUpdateException ex)
         {

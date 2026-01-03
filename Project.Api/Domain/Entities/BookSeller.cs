@@ -1,6 +1,6 @@
 ﻿namespace Project.Api.Domain.Entities;
 
-public sealed class BookSeller
+public sealed class BookSeller : Entity
 {
     public Guid SellerId { get; set; }
     public Guid BookId { get; set; }

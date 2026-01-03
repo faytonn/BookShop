@@ -1,7 +1,7 @@
 ﻿namespace Project.Api.Persistence.Repositories.BookLanguages
 {
-    public interface ICategoryRepository : IRepository<Category>
+    public interface IBookLanguageRepository : IRepository<BookLanguage>
     {
-         
+
     }
 }

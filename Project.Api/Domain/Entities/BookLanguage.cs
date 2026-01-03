@@ -2,7 +2,7 @@
 
 namespace Project.Api.Domain.Entities;
 
-public sealed class BookLanguage
+public sealed class BookLanguage : Entity
 {
     public Guid BookId { get; set; }
     public Guid LanguageId { get; set; }

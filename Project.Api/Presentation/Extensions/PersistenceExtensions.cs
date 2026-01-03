@@ -1,5 +1,6 @@
 ﻿using Project.Api.Persistence.Repositories.BookLanguages;
 using Project.Api.Persistence.Repositories.Books;
+using Project.Api.Persistence.Repositories.BookSellers;
 using Project.Api.Persistence.Repositories.Coupons;
 using Project.Api.Persistence.Repositories.Languages;
 using Project.Api.Persistence.Repositories.Orders;
@@ -17,8 +18,11 @@ public static class PersistenceExtensions
             services.AddDbContext<AppDbContext>();
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IBookLanguageRepository, BookLanguageRepository>();
             services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<IBookSellerRepository, BookSellerRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            //services.AddScoped<ICategoryBookRepository, CategoryRepository>();
             services.AddScoped<ICouponRepository, CouponRepository>();
             services.AddScoped<ILanguageRepository, LanguageRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();

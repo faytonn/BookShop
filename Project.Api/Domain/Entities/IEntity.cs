@@ -1,10 +1,10 @@
 namespace Project.Api.Domain.Entities;
 
-public interface IEntity {
-    Guid Id { get; init; }
-};
+public interface IEntity;
 
-public abstract class BaseEntity : IEntity
+public abstract class Entity : IEntity;
+
+public abstract class BaseEntity : Entity
 {
     public Guid Id { get; init; } = Guid.CreateVersion7();
 }

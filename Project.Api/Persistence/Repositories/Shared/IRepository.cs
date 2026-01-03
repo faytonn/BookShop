@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using System.Linq.Expressions;
 
 namespace Project.Api.Persistence.Repositories.Shared;
 public interface IRepository<T> where T : IEntity
@@ -14,4 +15,6 @@ public interface IRepository<T> where T : IEntity
     IQueryable<T> GetWhereAll(Expression<Func<T, bool>> filter);
     T? Find(Guid id);
     Task<T?> FindAsync(Guid id);
+    Task<IDbContextTransaction> BeginTransactionAsync();
+
 }
