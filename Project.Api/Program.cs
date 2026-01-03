@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.Http.HttpResults;
-using Project.Api.Application.Extensions;
-using Project.Api.Infrastucture.Extensions;
-using Project.Api.Presentation.Extensions;
-
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -24,6 +19,5 @@ builder.Services
 var app = builder.Build();
 
 app.AddPresentationMiddlewares();
-
 
 app.Run();

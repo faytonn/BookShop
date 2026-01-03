@@ -1,14 +1,13 @@
 using Project.Api.Application.DTOs;
 using Project.Api.Application.Services.Abstractions;
-using Project.Api.Persistence.Repositories.BookLanguages;
-using Project.Api.Persistence.Repositories.Books;
-using Project.Api.Persistence.Repositories.BookSellers;
+using Project.Api.Persistence.UnitOfWorks;
 
 namespace Project.Api.Application.Services;
 
 public sealed class BookService(IBookRepository bookRepository,
                                 IBookLanguageRepository bookLanguageRepository, 
-                                IBookSellerRepository bookSellerRepository) : IBookService
+                                IBookSellerRepository bookSellerRepository,
+                                IUnitOfWork unitOfWork) : IBookService
 {
     public async Task<IEnumerable<BookResponse>> GetBooksAsync()
     {
@@ -56,15 +55,15 @@ public sealed class BookService(IBookRepository bookRepository,
             ReleaseDate = request.ReleaseDate,
         };
 
-        using var transaction = await bookRepository.BeginTransactionAsync();
+        using var transaction = await unitOfWork.BeginTransactionAsync();
 
         try
         {
-            bookRepository.Add(newBook);
+            unitOfWork.Books.Add(newBook);
 
             foreach (var langId in request.LanguageIds)
             {
-                bookLanguageRepository.Add(new BookLanguage
+                unitOfWork.BookLanguages.Add(new BookLanguage
                 {
                     BookId = newBook.Id,
                     LanguageId = langId,
@@ -77,16 +76,16 @@ public sealed class BookService(IBookRepository bookRepository,
                 SellerId = sellerId
             };
 
-            bookSellerRepository.Add(bookSeller);
+            unitOfWork.BookSellers.Add(bookSeller);
 
-            await bookRepository.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await unitOfWork.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
 
             return newBook.Id;
         }
         catch
         {
-            await transaction.RollbackAsync();
+            await unitOfWork.RollbackAsync();
             throw;
         }
     }

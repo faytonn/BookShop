@@ -2,3 +2,13 @@
 global using Project.Api.Domain.Entities;
 global using Project.Api.Persistence.Contexts;
 global using Project.Api.Persistence.Repositories.Shared;
+global using Project.Api.Application.Extensions;
+global using Project.Api.Infrastucture.Extensions;
+global using Project.Api.Presentation.Extensions;
+global using System.Text;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.IdentityModel.Tokens;
+global using Microsoft.EntityFrameworkCore.Storage;
+global using Project.Api.Persistence.Repositories.Books;
+global using Project.Api.Persistence.Repositories.BookSellers;
+global using Project.Api.Persistence.Repositories.BookLanguages;

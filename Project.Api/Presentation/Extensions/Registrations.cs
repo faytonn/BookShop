@@ -1,9 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Scalar.AspNetCore;
-
-namespace Project.Api.Presentation.Extensions;
+﻿namespace Project.Api.Presentation.Extensions;
 
 public static class Registrations
 {
@@ -31,22 +26,11 @@ public static class Registrations
         });
         services.AddAuthorization();
 
-        if (env.IsDevelopment())
-        {
-            services.AddOpenApi();
-        }
-
         return services;
     }
 
     public static void AddPresentationMiddlewares(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-            app.MapScalarApiReference();
-        }
-
         if (app.Environment.IsProduction())
         {
             app.UseHttpsRedirection();
