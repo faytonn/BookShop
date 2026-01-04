@@ -1,7 +1,7 @@
 namespace Project.Api.Presentation.Controllers;
 
 [Route("api/v1/coupons"), ApiController]
-public sealed class CouponsController(ICouponService couponService) : ControllerBase
+public sealed class CouponsController(ICouponService couponService, IValidator<CouponRequest> validator) : ControllerBase
 {
     [HttpGet]
     public IActionResult GetCoupons()
@@ -45,6 +45,9 @@ public sealed class CouponsController(ICouponService couponService) : Controller
     [HttpPost, Authorize(Roles = "Admin,SuperAdmin")]
     public async Task<IActionResult> CreateCoupon(CouponRequest req)
     {
+        var validation = validator.Validate(req);
+        if (!validation.IsValid)
+            return BadRequest(validation.Errors);
         try
         {
             var response = await couponService.CreateCouponAsync(req);

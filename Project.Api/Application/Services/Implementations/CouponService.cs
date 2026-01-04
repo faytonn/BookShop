@@ -86,7 +86,7 @@ public sealed class CouponService(IUnitOfWork unitOfWork, CouponGenerator coupon
         {
             Id = Guid.CreateVersion7(),
             Code = code,
-            DiscountPercentage = request.DiscountPercentage,
+            DiscountPercentage = (byte)request.DiscountPercentage,
             ExpirationDate = request.ExpirationDate,
             UsageLimit = request.UsageLimit,
             UsedCount = 0,
@@ -134,7 +134,7 @@ public sealed class CouponService(IUnitOfWork unitOfWork, CouponGenerator coupon
             {
                 Id = Guid.CreateVersion7(),
                 Code = code,
-                DiscountPercentage = request.DiscountPercentage,
+                DiscountPercentage = (byte)request.DiscountPercentage,
                 ExpirationDate = request.ExpirationDate,
                 UsageLimit = request.UsageLimit,
                 UsedCount = 0,
@@ -178,7 +178,7 @@ public sealed class CouponService(IUnitOfWork unitOfWork, CouponGenerator coupon
         if (request.UsageLimit <= 0 || request.UsageLimit < coupon.UsedCount)
             throw new ArgumentException("Usage limit must be greater than 0 and not less than used count.");
 
-        coupon.DiscountPercentage = request.DiscountPercentage;
+        coupon.DiscountPercentage = (byte)request.DiscountPercentage;
         coupon.ExpirationDate = request.ExpirationDate;
         coupon.UsageLimit = request.UsageLimit;
 

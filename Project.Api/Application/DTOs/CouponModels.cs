@@ -12,14 +12,14 @@ public record struct CouponResponse(
 );
 
 public record struct CouponRequest(
-    byte DiscountPercentage,
+    int DiscountPercentage,
     DateTime ExpirationDate,
     int UsageLimit
 );
 
 public record struct CouponGenerateRequest(
     int Count,
-    byte DiscountPercentage,
+    int DiscountPercentage,
     DateTime ExpirationDate,
     int UsageLimit
 );
