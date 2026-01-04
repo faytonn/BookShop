@@ -12,3 +12,5 @@ global using Microsoft.EntityFrameworkCore.Storage;
 global using Project.Api.Persistence.Repositories.Books;
 global using Project.Api.Persistence.Repositories.BookSellers;
 global using Project.Api.Persistence.Repositories.BookLanguages;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
+global using FluentValidation;
