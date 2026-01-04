@@ -1,7 +1,7 @@
 ﻿namespace Project.Api.Presentation.Controllers;
 
 [Route("api/v1/auth"), ApiController]
-public sealed class AuthController(IAuthService authService) : ControllerBase
+public sealed class AuthController(IAuthService authService, IValidator<LoginRequest> validator) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest registerRequest)
@@ -29,6 +29,8 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest login, [FromServices] IAuthService authService)
     {
+        var validation = validator.Validate(login);
+        if (!validation.IsValid) return BadRequest(validation.Errors);
 
         try
         {

@@ -1,6 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Project.Api.Domain.Entities;
-
 namespace Project.Api.Persistence.Contexts;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfiguration cfg) : DbContext(opts)
@@ -22,6 +19,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Program).Assembly); // Assembly.GetExecutingAssembly()
+
         modelBuilder.Entity<BookLanguage>(e =>
         {
             e.HasKey(nameof(BookLanguage.BookId), nameof(BookLanguage.LanguageId));
@@ -34,10 +33,5 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
         {
             e.HasKey(nameof(BookSeller.SellerId), nameof(BookSeller.BookId));
         });
-        modelBuilder.Entity<Category>()
-            .HasOne(c => c.ParentCategory)
-            .WithMany()
-            .HasForeignKey(c => c.ParentCategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }
