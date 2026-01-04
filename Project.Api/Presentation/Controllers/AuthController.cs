@@ -1,11 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Project.Api.Application.DTOs;
-using Project.Api.Application.Services.Abstractions;
-using System.Net;
-using System.Security.Claims;
-
-namespace Project.Api.Presentation.Controllers;
+﻿namespace Project.Api.Presentation.Controllers;
 
 [Route("api/v1/auth"), ApiController]
 public sealed class AuthController(IAuthService authService) : ControllerBase

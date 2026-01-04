@@ -1,7 +1,3 @@
-using Project.Api.Application.DTOs;
-using Project.Api.Application.Services.Abstractions;
-using Project.Api.Persistence.UnitOfWorks;
-
 namespace Project.Api.Application.Services;
 
 public sealed class BookService(IUnitOfWork unitOfWork) : IBookService

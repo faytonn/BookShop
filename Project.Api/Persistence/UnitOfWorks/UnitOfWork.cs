@@ -1,10 +1,4 @@
-﻿using Project.Api.Persistence.Repositories.Coupons;
-using Project.Api.Persistence.Repositories.Languages;
-using Project.Api.Persistence.Repositories.Orders;
-using Project.Api.Persistence.Repositories.Sellers;
-using Project.Api.Persistence.Repositories.Users;
-
-namespace Project.Api.Persistence.UnitOfWorks;
+﻿namespace Project.Api.Persistence.UnitOfWorks;
 
 public sealed class UnitOfWork : IUnitOfWork
 {

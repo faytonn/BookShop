@@ -1,6 +1,4 @@
-﻿using Project.Api.Domain.Entities;
-
-namespace Project.Api.Application.DTOs;
+﻿namespace Project.Api.Application.DTOs;
 
 public record struct RegisterRequest(string Email, string Password, UserRole UserRole = UserRole.None);
 //public record struct RegisterResponse(string Email, string Password, UserRole UserRole = UserRole.None);

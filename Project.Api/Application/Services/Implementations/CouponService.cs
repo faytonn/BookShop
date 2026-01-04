@@ -1,9 +1,3 @@
-using Project.Api.Application.DTOs;
-using Project.Api.Application.Services.Abstractions;
-using Project.Api.Infrastucture.Providers.Coupons;
-using Project.Api.Persistence.Repositories.Coupons;
-using Project.Api.Persistence.UnitOfWorks;
-
 namespace Project.Api.Application.Services;
 
 public sealed class CouponService(IUnitOfWork unitOfWork, CouponGenerator couponGenerator) : ICouponService

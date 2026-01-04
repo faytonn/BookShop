@@ -1,8 +1,4 @@
-﻿using System.Security.Claims;
-using System.Text;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
-using Project.Api.Domain.Entities;
+﻿using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Project.Api.Infrastucture.Providers.Tokens;
 

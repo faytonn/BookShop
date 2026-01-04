@@ -1,7 +1,3 @@
-using Project.Api.Application.Services;
-using Project.Api.Application.Services.Abstractions;
-using Project.Api.Application.Services.Implementations;
-
 namespace Project.Api.Application.Extensions
 {
     public static class Registrations

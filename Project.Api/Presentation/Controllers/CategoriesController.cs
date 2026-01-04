@@ -1,9 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Project.Api.Application.DTOs;
-using Project.Api.Application.Services.Abstractions;
-
 namespace Project.Api.Presentation.Controllers;
 
 [Route("api/v1/categories"), ApiController]

@@ -1,5 +1,3 @@
-using Project.Api.Application.DTOs;
-
 namespace Project.Api.Application.Services.Abstractions;
 
 public interface ICouponService 

@@ -1,19 +1,4 @@
-﻿using Azure.Core;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Win32;
-using Project.Api.Application.DTOs;
-using Project.Api.Application.Services.Abstractions;
-using Project.Api.Domain.Entities;
-using Project.Api.Infrastucture.Providers.Tokens;
-using Project.Api.Persistence.Contexts;
-using Project.Api.Persistence.Repositories.Users;
-using Project.Api.Persistence.UnitOfWorks;
-using System.Net;
-using System.Security.Claims;
-
-namespace Project.Api.Application.Services.Implementations;
+﻿namespace Project.Api.Application.Services.Implementations;
 
 public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
 {

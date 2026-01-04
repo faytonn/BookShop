@@ -1,16 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Project.Api.Application.DTOs;
-using Project.Api.Application.Services.Abstractions;
-using Project.Api.Domain.Entities;
-using Project.Api.Persistence.Contexts;
-using Project.Api.Persistence.Repositories.Books;
-using Project.Api.Persistence.Repositories.Coupons;
-using Project.Api.Persistence.Repositories.Orders;
-using Project.Api.Persistence.Repositories.Users;
-using System.Security.Claims;
-using System.Text.Json;
-
 namespace Project.Api.Application.Services.Implementations;
 
 public sealed class OrderService(IOrderRepository orderRepository,

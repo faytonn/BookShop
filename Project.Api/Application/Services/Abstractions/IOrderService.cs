@@ -1,6 +1,3 @@
-using Project.Api.Application.DTOs;
-using Project.Api.Domain.Entities;
-
 namespace Project.Api.Application.Services.Abstractions;
 
 public interface IOrderService
