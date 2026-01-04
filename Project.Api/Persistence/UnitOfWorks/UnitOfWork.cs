@@ -1,23 +1,47 @@
-﻿namespace Project.Api.Persistence.UnitOfWorks;
+﻿using Project.Api.Persistence.Repositories.Coupons;
+using Project.Api.Persistence.Repositories.Languages;
+using Project.Api.Persistence.Repositories.Orders;
+using Project.Api.Persistence.Repositories.Sellers;
+using Project.Api.Persistence.Repositories.Users;
+
+namespace Project.Api.Persistence.UnitOfWorks;
 
 public sealed class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
+   public IBookLanguageRepository BookLanguages { get; }
     public IBookRepository Books { get; }
     public IBookSellerRepository BookSellers { get; }
-    public IBookLanguageRepository BookLanguages { get; }
+    public ICategoryRepository Categories { get; }
+    public ICouponRepository Coupons { get; }
+    public ILanguageRepository Languages {  get; }
+    public IOrderRepository Orders { get; }
+    public ISellerRepository Sellers { get; }
+    public IUserRepository Users {  get; }
 
     public UnitOfWork(
         AppDbContext context,
+        IBookLanguageRepository bookLanguageRepository,
         IBookRepository bookRepository,
         IBookSellerRepository bookSellerRepository,
-        IBookLanguageRepository bookLanguageRepository
+        ICategoryRepository categoryRepository,
+        ICouponRepository couponRepository,
+        ILanguageRepository languageRepository,
+        IOrderRepository orderRepository,
+        ISellerRepository sellerRepository,
+        IUserRepository userRepository
     )
     {
         _context = context;
+        BookLanguages = bookLanguageRepository;
         Books = bookRepository;
         BookSellers = bookSellerRepository;
-        BookLanguages = bookLanguageRepository;
+        Categories = categoryRepository;
+        Coupons = couponRepository;
+        Languages = languageRepository;
+        Orders = orderRepository;
+        Sellers = sellerRepository;
+        Users = userRepository;
     }
 
     public IDbContextTransaction? BeginTransaction() => _context.Database.BeginTransaction();

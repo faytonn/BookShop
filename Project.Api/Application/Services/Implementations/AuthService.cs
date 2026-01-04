@@ -9,18 +9,19 @@ using Project.Api.Domain.Entities;
 using Project.Api.Infrastucture.Providers.Tokens;
 using Project.Api.Persistence.Contexts;
 using Project.Api.Persistence.Repositories.Users;
+using Project.Api.Persistence.UnitOfWorks;
 using System.Net;
 using System.Security.Claims;
 
 namespace Project.Api.Application.Services.Implementations;
 
-public sealed class AuthService(IUserRepository userRepository, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
+public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
 {
     public async Task<string> LoginAsync(LoginRequest request)
     {
         if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim())) 
             throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
-        var user = await userRepository.GetWhereAll(e => e.Email.Equals(request.Email.ToLower()))
+        var user = await unitOfWork.Users.GetWhereAll(e => e.Email.Equals(request.Email.ToLower()))
                                        .FirstOrDefaultAsync();
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.HashedPassword)) throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
 
@@ -33,7 +34,7 @@ public sealed class AuthService(IUserRepository userRepository, /*[FromServices]
     {
         if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim())) throw new InvalidOperationException("Invalid format for email or password");
         var requestEmail = request.Email.Trim().ToLower();
-        var isExist = await userRepository.GetWhereAll(e => e.Email.Equals(requestEmail))
+        var isExist = await unitOfWork.Users.GetWhereAll(e => e.Email.Equals(requestEmail))
                                           .AnyAsync();
 
         if (isExist) throw new/* BadRequest*/InvalidOperationException("User already exists!");
@@ -47,8 +48,8 @@ public sealed class AuthService(IUserRepository userRepository, /*[FromServices]
 
         try
         {
-            userRepository.Add(newUser);
-            await userRepository.SaveChangesAsync();
+            unitOfWork.Users.Add(newUser);
+            await unitOfWork.SaveChangesAsync();
         }
         catch (DbUpdateException ex)
         {
@@ -62,7 +63,7 @@ public sealed class AuthService(IUserRepository userRepository, /*[FromServices]
 
     public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequest passwordRequest)
     {
-        var user = await userRepository.FindAsync(userId);
+        var user = await unitOfWork.Users.FindAsync(userId);
         if (user is null)
             throw new InvalidOperationException("No such user exists.");
 
@@ -77,7 +78,7 @@ public sealed class AuthService(IUserRepository userRepository, /*[FromServices]
         try
         {
             user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(passwordRequest.NewPassword, BCrypt.Net.BCrypt.GenerateSalt());
-            await userRepository.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync();
         }
         catch (DbUpdateException ex)
         {

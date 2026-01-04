@@ -1,19 +1,14 @@
-using Microsoft.EntityFrameworkCore;
 using Project.Api.Application.DTOs;
 using Project.Api.Application.Services.Abstractions;
-using Project.Api.Domain.Entities;
-using Project.Api.Persistence.Contexts;
-using Project.Api.Persistence.Repositories.BookLanguages;
-using Project.Api.Persistence.Repositories.Books;
+using Project.Api.Persistence.UnitOfWorks;
 
 namespace Project.Api.Application.Services;
 
-public sealed class CategoryService(ICategoryRepository categoryRepository,
-                                    IBookRepository bookRepository) : ICategoryService
+public sealed class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
 {
     public IEnumerable<CategoryResponse> GetCategories()
     {
-        var categories = categoryRepository
+        var categories = unitOfWork.Categories
             .GetAll(tracking: false)
             .Select(c => new CategoryResponse(
                 c.Id,
@@ -27,7 +22,7 @@ public sealed class CategoryService(ICategoryRepository categoryRepository,
 
     public CategoryResponse? GetCategory(Guid categoryId)
     {
-        var category = categoryRepository
+        var category = unitOfWork.Categories
             .GetWhereAll(c => c.Id == categoryId)
             .Select(c => new CategoryResponse(
                 c.Id,
@@ -42,7 +37,7 @@ public sealed class CategoryService(ICategoryRepository categoryRepository,
 
     public IEnumerable<Category> GetCategoryBooks(Guid categoryId)
     {
-        var categories = categoryRepository
+        var categories = unitOfWork.Categories
             .GetAll(tracking: false)
             .Include(c => c.Books);
 
@@ -53,7 +48,7 @@ public sealed class CategoryService(ICategoryRepository categoryRepository,
     {
         if (request.ParentId != Guid.Empty)
         {
-            var parentExists = categoryRepository
+            var parentExists = unitOfWork.Categories
                 .GetWhereAll(c => c.Id == request.ParentId)
                 .Any();
 
@@ -69,8 +64,8 @@ public sealed class CategoryService(ICategoryRepository categoryRepository,
             ParentCategoryId = request.ParentId
         };
 
-        categoryRepository.Add(newCategory);
-        categoryRepository.SaveChanges();
+        unitOfWork.Categories.Add(newCategory);
+        unitOfWork.SaveChanges();
 
         return new CategoryResponse(
             newCategory.Id,
@@ -82,14 +77,14 @@ public sealed class CategoryService(ICategoryRepository categoryRepository,
 
     public CategoryResponse? UpdateCategory(Guid categoryId, CategoryRequest request)
     {
-        var category = categoryRepository.Find(categoryId);
+        var category = unitOfWork.Categories.Find(categoryId);
 
         if (category is null)
             return null;
 
         if (request.ParentId != Guid.Empty && request.ParentId != categoryId)
         {
-            var parentExists = categoryRepository
+            var parentExists = unitOfWork.Categories
                 .GetWhereAll(c => c.Id == request.ParentId)
                 .Any();
 
@@ -105,8 +100,8 @@ public sealed class CategoryService(ICategoryRepository categoryRepository,
         category.ParentCategoryId = request.ParentId;
 
 
-        categoryRepository.Update(category);
-        categoryRepository.SaveChanges();
+        unitOfWork.Categories.Update(category);
+        unitOfWork.SaveChanges();
 
         return new CategoryResponse(
             category.Id,
@@ -118,28 +113,28 @@ public sealed class CategoryService(ICategoryRepository categoryRepository,
 
     public bool DeleteCategory(Guid categoryId)
     {
-        var category = categoryRepository
+        var category = unitOfWork.Categories
             .Find(categoryId);
 
         if (category is null)
             return false;
 
-        var hasSubcategories = categoryRepository
+        var hasSubcategories = unitOfWork.Categories
             .GetWhereAll(c => c.ParentCategoryId == categoryId)
             .Any();
 
         if (hasSubcategories)
             throw new InvalidOperationException("Cannot delete category with subcategories. Delete subcategories first.");
 
-        var hasBooks = bookRepository
+        var hasBooks = unitOfWork.Books
             .GetBooksWithCategories()
             .Any(b => b.CategoryBooks.Any(cb => cb.CategoryId == categoryId));
 
         if (hasBooks)
             throw new InvalidOperationException("Cannot delete category with associated books. Remove books first.");
 
-        categoryRepository.Remove(category);
-        categoryRepository.SaveChanges();
+        unitOfWork.Categories.Remove(category);
+        unitOfWork.SaveChanges();
 
         return true;
     }

@@ -4,14 +4,11 @@ using Project.Api.Persistence.UnitOfWorks;
 
 namespace Project.Api.Application.Services;
 
-public sealed class BookService(IBookRepository bookRepository,
-                                IBookLanguageRepository bookLanguageRepository, 
-                                IBookSellerRepository bookSellerRepository,
-                                IUnitOfWork unitOfWork) : IBookService
+public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
 {
     public async Task<IEnumerable<BookResponse>> GetBooksAsync()
     {
-        var books = await bookRepository
+        var books = await unitOfWork.Books
             .GetBooksWithSellers()
             .Select(b => new BookResponse(
                 b.Id,
@@ -26,7 +23,7 @@ public sealed class BookService(IBookRepository bookRepository,
 
     public async Task<BookDetailedResponse?> GetBookAsync(Guid bookId)
     {
-        var book = await bookRepository
+        var book = await unitOfWork.Books
             .GetBooksWithLanguagesThenSellers()
             .Where(b => b.Id == bookId)
             .Select(b => new BookDetailedResponse(
@@ -92,7 +89,7 @@ public sealed class BookService(IBookRepository bookRepository,
 
     public async Task<bool> UpdateBookAsync(Guid bookId, BookRequest request)
     {
-        var book = await bookRepository.FindAsync(bookId);
+        var book = await unitOfWork.Books.FindAsync(bookId);
         if (book is null)
             return false;
 
@@ -101,19 +98,19 @@ public sealed class BookService(IBookRepository bookRepository,
         book.Discount = request.Discount;
         book.ReleaseDate = request.ReleaseDate;
 
-        await bookRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
 
         return true;
     }
 
     public async Task<bool> DeleteBookAsync(Guid bookId)
     {
-        var book = await bookRepository.FindAsync(bookId);
+        var book = await unitOfWork.Books.FindAsync(bookId);
         if (book is null)
             return false;
 
-        bookRepository.Remove(book);
-        await bookRepository.SaveChangesAsync();
+        unitOfWork.Books.Remove(book);
+        await unitOfWork.SaveChangesAsync();
 
         return true;
     }

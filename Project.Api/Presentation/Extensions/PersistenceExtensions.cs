@@ -21,9 +21,9 @@ public static class PersistenceExtensions
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            //services.AddScoped<IBookLanguageRepository, BookLanguageRepository>();
-            //services.AddScoped<IBookRepository, BookRepository>();
-            //services.AddScoped<IBookSellerRepository, BookSellerRepository>();
+            services.AddScoped<IBookLanguageRepository, BookLanguageRepository>();
+            services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<IBookSellerRepository, BookSellerRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             //services.AddScoped<ICategoryBookRepository, CategoryRepository>();
             services.AddScoped<ICouponRepository, CouponRepository>();

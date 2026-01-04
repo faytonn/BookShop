@@ -2,14 +2,15 @@ using Project.Api.Application.DTOs;
 using Project.Api.Application.Services.Abstractions;
 using Project.Api.Infrastucture.Providers.Coupons;
 using Project.Api.Persistence.Repositories.Coupons;
+using Project.Api.Persistence.UnitOfWorks;
 
 namespace Project.Api.Application.Services;
 
-public sealed class CouponService(ICouponRepository couponRepository, CouponGenerator couponGenerator) : ICouponService
+public sealed class CouponService(IUnitOfWork unitOfWork, CouponGenerator couponGenerator) : ICouponService
 {
     public IEnumerable<CouponResponse> GetCoupons()
     {
-        var coupons = couponRepository
+        var coupons = unitOfWork.Coupons
             .GetWhereAll(c => !c.IsDeleted)
             .Select(c => new CouponResponse(
                 c.Id,
@@ -27,7 +28,7 @@ public sealed class CouponService(ICouponRepository couponRepository, CouponGene
 
     public async Task<CouponResponse?> GetCouponAsync(Guid couponId)
     {
-        var coupon = await couponRepository
+        var coupon = await unitOfWork.Coupons
             .GetWhereAll(c => c.Id == couponId && !c.IsDeleted)
             .Select(c => new CouponResponse(
                 c.Id,
@@ -52,7 +53,7 @@ public sealed class CouponService(ICouponRepository couponRepository, CouponGene
         if (string.IsNullOrWhiteSpace(code))
             throw new ArgumentException("Coupon code is required.");
 
-        var coupon = await couponRepository
+        var coupon = await unitOfWork.Coupons
             .GetWhereAll(c => c.Code == code.ToUpper() && !c.IsDeleted && c.IsActive)
             .Select(c => new CouponResponse(
                 c.Id,
@@ -84,7 +85,7 @@ public sealed class CouponService(ICouponRepository couponRepository, CouponGene
             throw new ArgumentException("Usage limit must be greater than 0.");
 
         var code = couponGenerator.GenerateUniqueCouponCode(
-            code => couponRepository.CodeExistsAsync(code).Result
+            code => unitOfWork.Coupons.CodeExistsAsync(code).Result
         );
 
         var newCoupon = new Coupon
@@ -98,8 +99,8 @@ public sealed class CouponService(ICouponRepository couponRepository, CouponGene
             IsActive = true,
         };
 
-        await couponRepository.AddAsync(newCoupon);
-        await couponRepository.SaveChangesAsync();
+        await unitOfWork.Coupons.AddAsync(newCoupon);
+        await unitOfWork.SaveChangesAsync();
 
         return new CouponResponse(
             newCoupon.Id,
@@ -132,7 +133,7 @@ public sealed class CouponService(ICouponRepository couponRepository, CouponGene
         for (int i = 0; i < request.Count; i++)
         {
             var code = couponGenerator.GenerateUniqueCouponCode(
-                code => couponRepository.CodeExistsAsync(code).Result || coupons.Any(c => c.Code == code)
+                code => unitOfWork.Coupons.CodeExistsAsync(code).Result || coupons.Any(c => c.Code == code)
             );
 
             var coupon = new Coupon
@@ -149,8 +150,8 @@ public sealed class CouponService(ICouponRepository couponRepository, CouponGene
             coupons.Add(coupon);
         }
 
-        await couponRepository.AddRangeAsync(coupons);
-        await couponRepository.SaveChangesAsync();
+        await unitOfWork.Coupons.AddRangeAsync(coupons);
+        await unitOfWork.SaveChangesAsync();
 
         var responses = coupons.Select(c => new CouponResponse(
             c.Id,
@@ -168,7 +169,7 @@ public sealed class CouponService(ICouponRepository couponRepository, CouponGene
 
     public async Task<CouponResponse?> UpdateCouponAsync(Guid couponId, CouponRequest request)
     {
-        var coupon = await couponRepository
+        var coupon = await unitOfWork.Coupons
             .FindAsync(couponId);
 
         if (coupon is null || coupon.IsDeleted)
@@ -187,8 +188,8 @@ public sealed class CouponService(ICouponRepository couponRepository, CouponGene
         coupon.ExpirationDate = request.ExpirationDate;
         coupon.UsageLimit = request.UsageLimit;
 
-        couponRepository.Update(coupon);   
-        await couponRepository.SaveChangesAsync();
+        unitOfWork.Coupons.Update(coupon);   
+        await unitOfWork.SaveChangesAsync();
 
         return new CouponResponse(
             coupon.Id,
@@ -204,42 +205,42 @@ public sealed class CouponService(ICouponRepository couponRepository, CouponGene
 
     public async Task<bool> ActivateCouponAsync(Guid couponId)
     {
-        var coupon = await couponRepository
+        var coupon = await unitOfWork.Coupons
             .FindAsync(couponId);
 
         if (coupon is null || coupon.IsDeleted)
             return false;
 
         coupon.IsActive = true;
-        await couponRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
 
         return true;
     }
 
     public async Task<bool> DeactivateCouponAsync(Guid couponId)
     {
-        var coupon = await couponRepository
+        var coupon = await unitOfWork.Coupons
             .FindAsync(couponId);
 
         if (coupon is null || coupon.IsDeleted)
             return false;
 
         coupon.IsActive = false;
-        await couponRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
 
         return true;
     }
 
     public async Task<bool> DeleteCouponAsync(Guid couponId)
     {
-        var coupon = await couponRepository
+        var coupon = await unitOfWork.Coupons
             .FindAsync(couponId);
 
         if (coupon is null || coupon.IsDeleted)
             return false;
 
         coupon.IsDeleted = true;
-        await couponRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
 
         return true;
     }
