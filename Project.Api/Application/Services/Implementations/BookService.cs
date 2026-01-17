@@ -1,3 +1,5 @@
+using Project.Api.Application.DTOs;
+
 namespace Project.Api.Application.Services;
 
 public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
@@ -11,6 +13,12 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
                 b.Name,
                 decimal.Round(b.Price - (b.Price * b.Discount / 100), 2, MidpointRounding.ToPositiveInfinity),
                 b.Discount,
+                b.ReleaseDate,
+                b.Authors.Select(a => new AuthorResponse
+                (
+                    a.Id,
+                    a.Name
+                )),
                 b.BookSellers.Select(bs => bs.Seller.Name)
             ))
             .ToListAsync();
@@ -30,6 +38,10 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
                 b.ReleaseDate,
                 b.IsReleased,
                 b.BookSellers.Select(bs => bs.Seller.Name),
+                b.Authors.Select(a => new AuthorResponse(
+                    a.Id,
+                    a.Name
+                    )),
                 b.Languages.Select(l => l.Language.Name)
             ))
             .FirstOrDefaultAsync();
@@ -61,6 +73,26 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
                     BookId = newBook.Id,
                     LanguageId = langId,
                 });
+            }
+
+            var authorNames = request.Authors.Select(a => a.Name);
+
+            var authors = unitOfWork.Authors.GetWhereAll(a => authorNames
+                                                    .Contains(a.Name));
+
+
+            List<string> missingAuthor = [.. authorNames];
+
+            foreach (var author in authors)
+            {
+                if(missingAuthor.Contains(author.Name))
+                {
+                    missingAuthor.Remove(author.Name);
+                }
+                else
+                {
+                    // to-do
+                }
             }
 
             var bookSeller = new BookSeller

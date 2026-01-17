@@ -1,20 +1,28 @@
-﻿namespace Project.Api.Persistence.UnitOfWorks;
+﻿using Project.Api.Persistence.Repositories.Authors;
+using Project.Api.Persistence.Repositories.BookAuthors;
+
+namespace Project.Api.Persistence.UnitOfWorks;
 
 public sealed class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
-   public IBookLanguageRepository BookLanguages { get; }
+
+    public IAuthorRepository Authors { get; }
+    public IBookAuthorRepository BookAuthors { get; }
+    public IBookLanguageRepository BookLanguages { get; }
     public IBookRepository Books { get; }
     public IBookSellerRepository BookSellers { get; }
     public ICategoryRepository Categories { get; }
     public ICouponRepository Coupons { get; }
-    public ILanguageRepository Languages {  get; }
+    public ILanguageRepository Languages { get; }
     public IOrderRepository Orders { get; }
     public ISellerRepository Sellers { get; }
-    public IUserRepository Users {  get; }
+    public IUserRepository Users { get; }
 
     public UnitOfWork(
         AppDbContext context,
+        IAuthorRepository authorRepository,
+        IBookAuthorRepository bookAuthorRepository,
         IBookLanguageRepository bookLanguageRepository,
         IBookRepository bookRepository,
         IBookSellerRepository bookSellerRepository,
@@ -27,6 +35,8 @@ public sealed class UnitOfWork : IUnitOfWork
     )
     {
         _context = context;
+        Authors = authorRepository;
+        BookAuthors = bookAuthorRepository;
         BookLanguages = bookLanguageRepository;
         Books = bookRepository;
         BookSellers = bookSellerRepository;

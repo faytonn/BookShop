@@ -1,4 +1,7 @@
-﻿namespace Project.Api.Persistence.UnitOfWorks;
+﻿using Project.Api.Persistence.Repositories.Authors;
+using Project.Api.Persistence.Repositories.BookAuthors;
+
+namespace Project.Api.Persistence.UnitOfWorks;
 
 public interface IUnitOfWork : IDisposable
 {
@@ -12,6 +15,8 @@ public interface IUnitOfWork : IDisposable
     Task<int> SaveChangesAsync();
 
 
+    IAuthorRepository Authors { get; }
+    IBookAuthorRepository BookAuthors { get; }
     IBookLanguageRepository BookLanguages { get; }
     IBookRepository Books { get; }
     IBookSellerRepository BookSellers { get; }
@@ -21,5 +26,6 @@ public interface IUnitOfWork : IDisposable
     IOrderRepository Orders { get; }
     ISellerRepository Sellers { get; }
     IUserRepository Users {  get; }
+
 
 }

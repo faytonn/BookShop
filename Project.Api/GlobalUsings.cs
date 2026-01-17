@@ -14,7 +14,6 @@ global using Project.Api.Persistence.Repositories.BookSellers;
 global using Project.Api.Persistence.Repositories.BookLanguages;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using FluentValidation;
-global using Project.Api.Persistence.Repositories.BookLanguages;
 global using Project.Api.Persistence.Repositories.Coupons;
 global using Project.Api.Persistence.Repositories.Languages;
 global using Project.Api.Persistence.Repositories.Orders;

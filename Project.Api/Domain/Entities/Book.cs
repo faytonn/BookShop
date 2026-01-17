@@ -16,4 +16,5 @@ public sealed class Book : AuditableEntity, ISoftDelete
     public List<BookLanguage> Languages { get; set; }
     public List<CategoryBook> CategoryBooks { get; set; }
     public List<BookSeller> BookSellers { get; set; }
+    public List<Author> Authors { get; set; }
 }

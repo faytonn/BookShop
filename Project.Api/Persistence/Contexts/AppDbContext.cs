@@ -7,7 +7,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
         optionsBuilder.UseSqlServer(cfg.GetConnectionString("Default"));
     }
     public DbSet<User> Users => Set<User>();
+    public DbSet<Author> Author => Set<Author>(); 
     public DbSet<Book> Books => Set<Book>();
+    public DbSet<BookAuthor> BookAuthor => Set<BookAuthor>();
     public DbSet<Language> Languages => Set<Language>();
     public DbSet<BookLanguage> BooksLanguages => Set<BookLanguage>();
     public DbSet<BookSeller> BookSellers => Set<BookSeller>();
