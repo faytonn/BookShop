@@ -1,6 +1,3 @@
-using Project.Api.Application.DTOs;
-using System.Text.Unicode;
-
 namespace Project.Api.Application.Services;
 
 public sealed class BookService(IUnitOfWork unitOfWork) : IBookService

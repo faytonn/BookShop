@@ -1,4 +1,4 @@
-namespace Project.Api.Application.Services;
+namespace Project.Api.Application.Services.Implementations;
 
 public sealed class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
 {

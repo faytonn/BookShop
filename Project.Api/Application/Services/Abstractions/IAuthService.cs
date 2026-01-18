@@ -7,6 +7,7 @@
         Task ChangePasswordAsync(Guid userId, ChangePasswordRequest passwordRequest);
 
         Task LogoutAsync(ClaimsPrincipal user);
+        Task<UserResponse> GetCurrentUserInfo(Guid userId);
 
     }
 }

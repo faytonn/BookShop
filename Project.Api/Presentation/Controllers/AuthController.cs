@@ -1,7 +1,8 @@
-﻿namespace Project.Api.Presentation.Controllers;
+﻿
+namespace Project.Api.Presentation.Controllers;
 
 [Route("api/v1/auth"), ApiController]
-public sealed class AuthController(IAuthService authService, IValidator<LoginRequest> validator) : ControllerBase
+public sealed class AuthController(IAuthService authService, IValidator<LoginRequest> validator, IMemoryCache cache) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest registerRequest)
@@ -65,7 +66,7 @@ public sealed class AuthController(IAuthService authService, IValidator<LoginReq
         {
             return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
         }
@@ -76,9 +77,15 @@ public sealed class AuthController(IAuthService authService, IValidator<LoginReq
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User id claim not found");
 
-        
 
+        var response = await cache.GetOrCreateAsync($"currentUser:{userId}", async entry =>
+        {
+            entry.AbsoluteExpiration = DateTime.Now.AddHours(6);
+            var user = await authService.GetCurrentUserInfo(Guid.Parse(userId));
+            return user;
+        });
 
+        return Ok(response);
     }
 
 

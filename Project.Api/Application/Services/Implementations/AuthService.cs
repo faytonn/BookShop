@@ -1,6 +1,4 @@
-﻿using Project.Api.Domain.Entities;
-
-namespace Project.Api.Application.Services.Implementations;
+﻿namespace Project.Api.Application.Services.Implementations;
 
 public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
 {
@@ -115,7 +113,7 @@ public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */Token
     }
 
 
-    public async Task GetCurrentUserInfo(Guid userId)
+    public async Task<UserResponse> GetCurrentUserInfo(Guid userId)
     {
         var user = await unitOfWork.Users.GetWhereAll(u => u.Id == userId).Select(u => new UserResponse
         (
@@ -127,6 +125,6 @@ public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */Token
             u.LastLoggedAt
         )).FirstOrDefaultAsync();
 
-
+        return user;
     }
 }
