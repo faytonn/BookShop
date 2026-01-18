@@ -22,6 +22,30 @@ namespace Project.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Project.Api.Domain.Entities.Author", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Author");
+                });
+
             modelBuilder.Entity("Project.Api.Domain.Entities.Book", b =>
                 {
                     b.Property<Guid>("Id")
@@ -45,7 +69,8 @@ namespace Project.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -58,7 +83,24 @@ namespace Project.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Id");
+
                     b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.BookAuthor", b =>
+                {
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AuthorId", "BookId");
+
+                    b.HasIndex("BookId");
+
+                    b.ToTable("BookAuthors");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.BookLanguage", b =>
@@ -73,6 +115,8 @@ namespace Project.Api.Migrations
 
                     b.HasIndex("LanguageId");
 
+                    b.HasIndex("BookId", "LanguageId");
+
                     b.ToTable("BooksLanguages");
                 });
 
@@ -86,7 +130,7 @@ namespace Project.Api.Migrations
 
                     b.HasKey("SellerId", "BookId");
 
-                    b.HasIndex("BookId");
+                    b.HasIndex("BookId", "SellerId");
 
                     b.ToTable("BookSellers");
                 });
@@ -101,7 +145,7 @@ namespace Project.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ParentCategoryId")
+                    b.Property<Guid?>("ParentCategoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("PriorityLevel")
@@ -126,6 +170,8 @@ namespace Project.Api.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("BookId", "CategoryId");
+
                     b.ToTable("CategoryBook");
                 });
 
@@ -137,7 +183,8 @@ namespace Project.Api.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -162,6 +209,9 @@ namespace Project.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Code")
+                        .IsUnique();
+
                     b.ToTable("Coupons");
                 });
 
@@ -173,9 +223,11 @@ namespace Project.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name");
 
                     b.ToTable("Languages");
                 });
@@ -214,6 +266,37 @@ namespace Project.Api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.Seller", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Surname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email");
+
+                    b.ToTable("Seller");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.User", b =>
@@ -259,6 +342,25 @@ namespace Project.Api.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Project.Api.Domain.Entities.BookAuthor", b =>
+                {
+                    b.HasOne("Project.Api.Domain.Entities.Author", "Author")
+                        .WithMany("Books")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Project.Api.Domain.Entities.Book", "Book")
+                        .WithMany("Authors")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Book");
+                });
+
             modelBuilder.Entity("Project.Api.Domain.Entities.BookLanguage", b =>
                 {
                     b.HasOne("Project.Api.Domain.Entities.Book", "Book")
@@ -302,8 +404,7 @@ namespace Project.Api.Migrations
                     b.HasOne("Project.Api.Domain.Entities.Category", "ParentCategory")
                         .WithMany()
                         .HasForeignKey("ParentCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentCategory");
                 });
@@ -338,8 +439,15 @@ namespace Project.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Project.Api.Domain.Entities.Author", b =>
+                {
+                    b.Navigation("Books");
+                });
+
             modelBuilder.Entity("Project.Api.Domain.Entities.Book", b =>
                 {
+                    b.Navigation("Authors");
+
                     b.Navigation("BookSellers");
 
                     b.Navigation("CategoryBooks");

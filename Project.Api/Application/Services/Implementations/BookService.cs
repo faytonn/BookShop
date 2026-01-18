@@ -1,4 +1,5 @@
 using Project.Api.Application.DTOs;
+using System.Text.Unicode;
 
 namespace Project.Api.Application.Services;
 
@@ -16,8 +17,8 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
                 b.ReleaseDate,
                 b.Authors.Select(a => new AuthorResponse
                 (
-                    a.Id,
-                    a.Name
+                    a.AuthorId,
+                    a.Author.Name
                 )),
                 b.BookSellers.Select(bs => bs.Seller.Name)
             ))
@@ -39,8 +40,8 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
                 b.IsReleased,
                 b.BookSellers.Select(bs => bs.Seller.Name),
                 b.Authors.Select(a => new AuthorResponse(
-                    a.Id,
-                    a.Name
+                    a.AuthorId,
+                    a.Author.Name
                     )),
                 b.Languages.Select(l => l.Language.Name)
             ))
@@ -51,6 +52,12 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
 
     public async Task<Guid> AddBookAsync(BookRequest request, Guid sellerId)
     {
+        var sellerExists = await unitOfWork.Sellers.FindAsync(sellerId);
+
+
+        if (sellerExists == null)
+            throw new InvalidDataException("You are not an authorized seller in this enterprise.");
+
         var newBook = new Book
         {
             Id = Guid.CreateVersion7(),
@@ -59,6 +66,7 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
             Discount = request.Discount,
             ReleaseDate = request.ReleaseDate,
         };
+
 
         using var transaction = await unitOfWork.BeginTransactionAsync();
 
@@ -78,22 +86,59 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
             var authorNames = request.Authors.Select(a => a.Name);
 
             var authors = unitOfWork.Authors.GetWhereAll(a => authorNames
-                                                    .Contains(a.Name));
-
-
-            List<string> missingAuthor = [.. authorNames];
-
-            foreach (var author in authors)
+                                                    .Contains(a.Name)).ToList();
+            
+            if(authors.Count == 0)
             {
-                if(missingAuthor.Contains(author.Name))
+                foreach(var name in authorNames)
                 {
-                    missingAuthor.Remove(author.Name);
-                }
-                else
-                {
-                    // to-do
+                    var authorId = Guid.CreateVersion7();
+                    unitOfWork.Authors.Add(new Author
+                    {
+                        Id = authorId,
+                        Name = name
+                    });
+
+                    unitOfWork.BookAuthors.Add(new BookAuthor
+                    {
+                        AuthorId = authorId,
+                        BookId = newBook.Id
+                    });
                 }
             }
+            else
+            {
+                foreach (var name in authorNames)
+                {
+                    foreach (var author in authors)
+                    {
+                        if (string.Equals(name, author.Name, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            unitOfWork.BookAuthors.Add(new BookAuthor
+                            {
+                                AuthorId = author.Id,
+                                BookId = newBook.Id
+                            });
+                        }
+                        else
+                        {
+                            var authorId = Guid.CreateVersion7();
+                            unitOfWork.Authors.Add(new Author
+                            {
+                                Id = authorId,
+                                Name = name
+                            });
+
+                            unitOfWork.BookAuthors.Add(new BookAuthor
+                            {
+                                AuthorId = authorId,
+                                BookId = newBook.Id
+                            });
+                        }
+                    }
+                }
+            }
+           
 
             var bookSeller = new BookSeller
             {

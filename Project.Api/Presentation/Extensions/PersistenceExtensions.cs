@@ -1,4 +1,6 @@
-﻿using Project.Api.Persistence.Repositories.BookLanguages;
+﻿using Project.Api.Persistence.Repositories.Authors;
+using Project.Api.Persistence.Repositories.BookAuthors;
+using Project.Api.Persistence.Repositories.BookLanguages;
 using Project.Api.Persistence.Repositories.Books;
 using Project.Api.Persistence.Repositories.BookSellers;
 using Project.Api.Persistence.Repositories.Coupons;
@@ -21,6 +23,8 @@ public static class PersistenceExtensions
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            services.AddScoped<IAuthorRepository, AuthorRepository>();
+            services.AddScoped<IBookAuthorRepository, BookAuthorRepository>();
             services.AddScoped<IBookLanguageRepository, BookLanguageRepository>();
             services.AddScoped<IBookRepository, BookRepository>();
             services.AddScoped<IBookSellerRepository, BookSellerRepository>();

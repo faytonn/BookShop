@@ -1,10 +1,12 @@
-﻿namespace Project.Api.Application.Services.Implementations;
+﻿using Project.Api.Domain.Entities;
+
+namespace Project.Api.Application.Services.Implementations;
 
 public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
 {
     public async Task<string> LoginAsync(LoginRequest request)
     {
-        if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim())) 
+        if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim()))
             throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
         var user = await unitOfWork.Users.GetWhereAll(e => e.Email.Equals(request.Email.ToLower()))
                                        .FirstOrDefaultAsync();
@@ -26,10 +28,24 @@ public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */Token
 
         var newUser = new User
         {
+            Id = Guid.CreateVersion7(),
+            Name = request.Name,
+            Surname = request.Surname,
             Email = requestEmail,
             HashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password, BCrypt.Net.BCrypt.GenerateSalt()),
             Role = request.UserRole
         };
+
+        if (newUser.Role == UserRole.Seller)
+        {
+            unitOfWork.Sellers.Add(new Seller
+            {
+                Id = newUser.Id,
+                Name = newUser.Name,
+                Surname = newUser.Surname,
+                Email = newUser.Email
+            });
+        }
 
         try
         {
@@ -96,5 +112,21 @@ public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */Token
         }
 
         throw new InvalidOperationException("Identity not found!");
+    }
+
+
+    public async Task GetCurrentUserInfo(Guid userId)
+    {
+        var user = await unitOfWork.Users.GetWhereAll(u => u.Id == userId).Select(u => new UserResponse
+        (
+            u.Id,
+            u.Name,
+            u.Surname,
+            u.Email,
+            Enum.GetName(u.Role)!,
+            u.LastLoggedAt
+        )).FirstOrDefaultAsync();
+
+
     }
 }

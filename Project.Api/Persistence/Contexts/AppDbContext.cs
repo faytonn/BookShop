@@ -9,7 +9,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
     public DbSet<User> Users => Set<User>();
     public DbSet<Author> Author => Set<Author>(); 
     public DbSet<Book> Books => Set<Book>();
-    public DbSet<BookAuthor> BookAuthor => Set<BookAuthor>();
+    public DbSet<BookAuthor> BookAuthors => Set<BookAuthor>();
     public DbSet<Language> Languages => Set<Language>();
     public DbSet<BookLanguage> BooksLanguages => Set<BookLanguage>();
     public DbSet<BookSeller> BookSellers => Set<BookSeller>();
@@ -35,5 +35,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
         {
             e.HasKey(nameof(BookSeller.SellerId), nameof(BookSeller.BookId));
         });
+        modelBuilder.Entity<BookAuthor>(e =>
+        {
+            e.HasKey(nameof(BookAuthor.AuthorId), nameof(BookAuthor.BookId));
+        });
+
     }
 }
