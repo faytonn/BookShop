@@ -1,8 +1,10 @@
+using Project.Api.Domain.Entities;
+
 namespace Project.Api.Presentation.Controllers;
 
 [Route("api/v1/orders"), ApiController]
 
-public sealed class OrdersController(AppDbContext context, IOrderService orderService) : ControllerBase
+public sealed class OrdersController(AppDbContext context, IOrderService orderService, IMemoryCache cache) : ControllerBase
 {
     private static string GenerateDisplayCode(Guid id) => $"ORDER{id.ToString("N")[..8].ToUpper()}";
 
@@ -40,7 +42,14 @@ public sealed class OrdersController(AppDbContext context, IOrderService orderSe
     {
         try
         {
-            var result = orderService.GetMyOrders(); 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User id claim not found");
+
+            var result = cache.GetOrCreate($"orders:user:{userId}", entry =>
+            {
+                entry.AbsoluteExpiration = DateTime.Now.AddMinutes(10);
+                return orderService.GetMyOrders();
+            });
+            
             return Ok(result);
         }
         catch (InvalidDataException ex)
@@ -71,7 +80,12 @@ public sealed class OrdersController(AppDbContext context, IOrderService orderSe
         if (string.IsNullOrWhiteSpace(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
             return Unauthorized("Invalid or missing token.");
 
-        var order = await context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+        var order = await cache.GetOrCreateAsync($"order:detail:{id}", async entry =>
+        {
+            entry.AbsoluteExpiration = DateTime.Now.AddMinutes(30);
+            return await context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+        });
+    
         if (order is null)
             return NotFound("Order not found.");
 

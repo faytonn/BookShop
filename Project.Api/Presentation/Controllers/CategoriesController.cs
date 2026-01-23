@@ -1,12 +1,17 @@
 namespace Project.Api.Presentation.Controllers;
 
 [Route("api/v1/categories"), ApiController]
-public sealed class CategoriesController(ICategoryService categoryService) : ControllerBase
+public sealed class CategoriesController(ICategoryService categoryService, IMemoryCache cache) : ControllerBase
 {
     [HttpGet]
     public IActionResult GetCategories()
     {
-        var categories = categoryService.GetCategories();
+        var categories = cache.GetOrCreate("categories:all", entry =>
+        {
+            entry.AbsoluteExpiration = DateTime.Now.AddHours(2);
+            return categoryService.GetCategories().ToList();
+        });
+
         return Ok(categories);
     }
 
@@ -16,7 +21,11 @@ public sealed class CategoriesController(ICategoryService categoryService) : Con
         if (!Guid.TryParse(id, out var categoryId))
             return BadRequest("Invalid Category Id.");
 
-        var category = categoryService.GetCategory(categoryId);
+        var category = cache.GetOrCreate($"category:{categoryId}", entry =>
+        {
+            entry.AbsoluteExpiration = DateTime.Now.AddHours(2);
+            return categoryService.GetCategory(categoryId);
+        });
 
         if (category is null)
             return NotFound("Category not found.");

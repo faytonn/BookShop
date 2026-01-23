@@ -1,12 +1,16 @@
 namespace Project.Api.Presentation.Controllers;
 
 [Route("api/v1/books"), ApiController]
-public sealed class BooksController(IBookService bookService) : ControllerBase
+public sealed class BooksController(IBookService bookService, IMemoryCache cache) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetBooks()
     {
-        var books = await bookService.GetBooksAsync();
+        var books = await cache.GetOrCreateAsync("books:all", async entry =>
+        {
+            entry.AbsoluteExpiration = DateTime.Now.AddMinutes(30);
+            return await bookService.GetBooksAsync();
+        });
         return Ok(books);
     }
 
@@ -16,7 +20,12 @@ public sealed class BooksController(IBookService bookService) : ControllerBase
         if (!Guid.TryParse(id, out var bookId))
             return BadRequest("Invalid Book Id.");
 
-        var book = await bookService.GetBookAsync(bookId);
+        var book = await cache.GetOrCreateAsync($"book:{bookId}", async entry =>
+        {
+            entry.AbsoluteExpiration = DateTime.Now.AddMinutes(30);
+            return await bookService.GetBookAsync(bookId);
+        });
+
         return Ok(book);
     }
 

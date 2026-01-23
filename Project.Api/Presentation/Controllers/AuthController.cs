@@ -75,7 +75,7 @@ public sealed class AuthController(IAuthService authService, IValidator<LoginReq
     [HttpGet("me"), Authorize]
     public async Task<IActionResult> CurrentUserInfo()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User id claim not found");
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User id claim not found");`
 
 
         var response = await cache.GetOrCreateAsync($"currentUser:{userId}", async entry =>
