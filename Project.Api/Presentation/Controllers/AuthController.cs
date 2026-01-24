@@ -4,28 +4,28 @@ namespace Project.Api.Presentation.Controllers;
 [Route("api/v1/auth"), ApiController]
 public sealed class AuthController(IAuthService authService, IValidator<LoginRequest> validator, IMemoryCache cache) : ControllerBase
 {
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest registerRequest)
-    {
-        try
-        {
-            await authService.RegisterAsync(registerRequest);
+    //[HttpPost("register")]
+    //public async Task<IActionResult> Register(RegisterRequest registerRequest)
+    //{
+    //    try
+    //    {
+    //        await authService.RegisterAsync(registerRequest);
 
-            return Created();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
-        }
-        catch (DbUpdateException ex)
-        {
-            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
-        }
-        catch (Exception ex)
-        {
-            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
-        }
-    }
+    //        return Created();
+    //    }
+    //    catch (InvalidOperationException ex)
+    //    {
+    //        return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
+    //    }
+    //    catch (DbUpdateException ex)
+    //    {
+    //        return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
+    //    }
+    //}
 
     //[HttpPost("login")]
     //public async Task<IActionResult> Login(LoginRequest login, [FromServices] IAuthService authService)
@@ -51,26 +51,26 @@ public sealed class AuthController(IAuthService authService, IValidator<LoginReq
     //}
 
 
-    [HttpPatch("Change-password"), Authorize]
-    public async Task<IActionResult> ChangePasswordAsync(ChangePasswordRequest passwordRequest)
-    {
-        try
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User id claim not found");
+    //[HttpPatch("Change-password"), Authorize]
+    //public async Task<IActionResult> ChangePasswordAsync(ChangePasswordRequest passwordRequest)
+    //{
+    //    try
+    //    {
+    //        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User id claim not found");
 
-            await authService.ChangePasswordAsync(Guid.Parse(userId), passwordRequest);
+    //        await authService.ChangePasswordAsync(Guid.Parse(userId), passwordRequest);
 
-            return NoContent();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
-        }
-        catch (Exception ex)
-        {
-            return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
-        }
-    }
+    //        return NoContent();
+    //    }
+    //    catch (InvalidOperationException ex)
+    //    {
+    //        return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
+    //    }
+    //}
 
     [HttpGet("me"), Authorize]
     public async Task<IActionResult> CurrentUserInfo()
