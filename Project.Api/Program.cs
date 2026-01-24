@@ -1,8 +1,8 @@
+using Project.Api.Presentation.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMemoryCache();
-
 
 builder.Logging.AddConsole();
 builder.Logging.SetMinimumLevel(LogLevel.Information);
@@ -23,5 +23,7 @@ builder.Services
 var app = builder.Build();
 
 app.AddPresentationMiddlewares();
+
+app.MapAuthEndpoints();
 
 app.Run();
