@@ -17,9 +17,3 @@ public record struct CouponRequest(
     int UsageLimit
 );
 
-public record struct CouponGenerateRequest(
-    int Count,
-    int DiscountPercentage,
-    DateTime ExpirationDate,
-    int UsageLimit
-);

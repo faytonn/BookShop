@@ -108,58 +108,58 @@ public sealed class CouponService(IUnitOfWork unitOfWork, CouponGenerator coupon
         );
     }
 
-    public async Task<List<CouponResponse>> GenerateCouponsAsync(CouponGenerateRequest request)
-    {
-        if (request.Count <= 0 || request.Count > 100)
-            throw new ArgumentException("Count must be between 1 and 100.");
+    //public async Task<List<CouponResponse>> GenerateCouponsAsync(CouponGenerateRequest request)
+    //{
+    //    if (request.Count <= 0 || request.Count > 100)
+    //        throw new ArgumentException("Count must be between 1 and 100.");
 
-        if (request.DiscountPercentage < 0 || request.DiscountPercentage > 100)
-            throw new ArgumentException("Invalid discount values.");
+    //    if (request.DiscountPercentage < 0 || request.DiscountPercentage > 100)
+    //        throw new ArgumentException("Invalid discount values.");
 
-        if (request.ExpirationDate <= DateTime.UtcNow)
-            throw new ArgumentException("Expiration date must be in the future.");
+    //    if (request.ExpirationDate <= DateTime.UtcNow)
+    //        throw new ArgumentException("Expiration date must be in the future.");
 
-        if (request.UsageLimit <= 0)
-            throw new ArgumentException("Usage limit must be greater than 0.");
+    //    if (request.UsageLimit <= 0)
+    //        throw new ArgumentException("Usage limit must be greater than 0.");
 
-        var coupons = new List<Coupon>();
+    //    var coupons = new List<Coupon>();
 
-        for (int i = 0; i < request.Count; i++)
-        {
-            var code = couponGenerator.GenerateUniqueCouponCode(
-                code => unitOfWork.Coupons.CodeExistsAsync(code).Result || coupons.Any(c => c.Code == code)
-            );
+    //    for (int i = 0; i < request.Count; i++)
+    //    {
+    //        var code = couponGenerator.GenerateUniqueCouponCode(
+    //            code => unitOfWork.Coupons.CodeExistsAsync(code).Result || coupons.Any(c => c.Code == code)
+    //        );
 
-            var coupon = new Coupon
-            {
-                Id = Guid.CreateVersion7(),
-                Code = code,
-                DiscountPercentage = (byte)request.DiscountPercentage,
-                ExpirationDate = request.ExpirationDate,
-                UsageLimit = request.UsageLimit,
-                UsedCount = 0,
-                IsActive = true,
-            };
+    //        var coupon = new Coupon
+    //        {
+    //            Id = Guid.CreateVersion7(),
+    //            Code = code,
+    //            DiscountPercentage = (byte)request.DiscountPercentage,
+    //            ExpirationDate = request.ExpirationDate,
+    //            UsageLimit = request.UsageLimit,
+    //            UsedCount = 0,
+    //            IsActive = true,
+    //        };
 
-            coupons.Add(coupon);
-        }
+    //        coupons.Add(coupon);
+    //    }
 
-        await unitOfWork.Coupons.AddRangeAsync(coupons);
-        await unitOfWork.SaveChangesAsync();
+    //    await unitOfWork.Coupons.AddRangeAsync(coupons);
+    //    await unitOfWork.SaveChangesAsync();
 
-        var responses = coupons.Select(c => new CouponResponse(
-            c.Id,
-            c.Code,
-            c.DiscountPercentage,
-            c.ExpirationDate,
-            c.UsageLimit,
-            c.UsedCount,
-            c.IsActive,
-            c.CreatedAt
-        )).ToList();
+    //    var responses = coupons.Select(c => new CouponResponse(
+    //        c.Id,
+    //        c.Code,
+    //        c.DiscountPercentage,
+    //        c.ExpirationDate,
+    //        c.UsageLimit,
+    //        c.UsedCount,
+    //        c.IsActive,
+    //        c.CreatedAt
+    //    )).ToList();
 
-        return responses;
-    }
+    //    return responses;
+    //}
 
     public async Task<CouponResponse?> UpdateCouponAsync(Guid couponId, CouponRequest request)
     {

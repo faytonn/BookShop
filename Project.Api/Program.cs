@@ -25,5 +25,8 @@ var app = builder.Build();
 app.AddPresentationMiddlewares();
 
 app.MapAuthEndpoints();
+app.MapCategoryEndpoints();
+app.MapBookEndpoints();
+app.MapCouponEndpoints();
 
 app.Run();

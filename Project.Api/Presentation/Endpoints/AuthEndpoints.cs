@@ -1,8 +1,4 @@
-﻿using Project.Api.Application.Services.Abstractions;
-using Project.Api.Application.Services.Implementations;
-using System.ComponentModel.DataAnnotations;
-
-namespace Project.Api.Presentation.Endpoints;
+﻿namespace Project.Api.Presentation.Endpoints;
 
 public static class AuthEndpoints
 {
@@ -10,7 +6,7 @@ public static class AuthEndpoints
     {
         public void MapAuthEndpoints()
         {
-            var group = route.MapGroup("auth");
+            var group = route.MapGroup("api/v1/auth");
 
             group.MapPost("login", async (LoginRequest login, IValidator<LoginRequest> validator, [FromServices] IAuthService authService) =>
             {
