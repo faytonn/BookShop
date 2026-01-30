@@ -1,10 +1,6 @@
 namespace Project.Api.Application.Services.Implementations;
 
-public sealed class OrderService(IOrderRepository orderRepository,
-                        ICouponRepository couponRepository,
-                        IBookRepository bookRepository,
-                        IUserRepository userRepository,
-                        IHttpContextAccessor accessor) : IOrderService
+public sealed class OrderService(IUnitOfWork unitOfWork, IHttpContextAccessor accessor) : IOrderService
 {
     private readonly ClaimsPrincipal User = accessor.HttpContext?.User ?? throw new InvalidDataException("No user found.");
 
@@ -27,7 +23,7 @@ public sealed class OrderService(IOrderRepository orderRepository,
         if (string.IsNullOrWhiteSpace(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
             throw new InvalidDataException("Invalid or missing token.");
 
-        var user = await userRepository.FindAsync(userId);
+        var user = await unitOfWork.Users.FindAsync(userId);
         if (user is null && user!.IsDeleted)
             throw new InvalidDataException("User not found or inactive.");
 
@@ -35,7 +31,7 @@ public sealed class OrderService(IOrderRepository orderRepository,
 
         if (request.CouponCode is not null)
         {
-            coupon = await couponRepository
+            coupon = await unitOfWork.Coupons
               .GetWhereAll(c => c.Code == request.CouponCode && c.IsActive && !c.IsDeleted)
               .FirstOrDefaultAsync();
 
@@ -51,7 +47,7 @@ public sealed class OrderService(IOrderRepository orderRepository,
 
         }
 
-        var booksTable = bookRepository
+        var booksTable = unitOfWork.Books
             .GetWhereAll(b => request.OrderItems.Select(oi => oi.Id)
             .Contains(b.Id) && !b.IsDeleted);
 
@@ -98,11 +94,11 @@ public sealed class OrderService(IOrderRepository orderRepository,
         };
 
 
-        await using var transaction = await orderRepository.BeginTransactionAsync();
+        await using var transaction = await unitOfWork.Orders.BeginTransactionAsync();
 
         try
         {
-            await orderRepository.AddAsync(newOrder);
+            await unitOfWork.Orders.AddAsync(newOrder);
 
             var booksToUpdate = await booksTable.ToListAsync();
 
@@ -122,7 +118,7 @@ public sealed class OrderService(IOrderRepository orderRepository,
             if (coupon is not null)
                 coupon.UsedCount += 1;
 
-            await orderRepository.SaveChangesAsync();
+            await unitOfWork.Orders.SaveChangesAsync();
             await transaction.CommitAsync();
 
         }
@@ -148,7 +144,7 @@ public sealed class OrderService(IOrderRepository orderRepository,
 
     public IEnumerable<AllOrdersDBModel> GetAllOrders()
     {
-        return orderRepository
+        return unitOfWork.Orders
              .GetOrderWithUser()
              .Select(o => new AllOrdersDBModel
              (
@@ -172,12 +168,12 @@ public sealed class OrderService(IOrderRepository orderRepository,
         if (string.IsNullOrWhiteSpace(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
             throw new InvalidDataException("Invalid or missing token.");
 
-        var userExists = userRepository.GetWhereAll(u => u.Id == userId && !u.IsDeleted)
+        var userExists = unitOfWork.Users.GetWhereAll(u => u.Id == userId && !u.IsDeleted)
                                         .Any();
         if (!userExists)
             throw new InvalidDataException("User not found or inactive.");
 
-        return orderRepository
+        return unitOfWork.Orders
             .GetWhereAll(o => o.UserId == userId)
             .OrderByDescending(o => o.CreatedAt)
             .Select(o => new MyOrdersResponse
@@ -197,7 +193,7 @@ public sealed class OrderService(IOrderRepository orderRepository,
             throw new InvalidDataException("Invalid or missing token.");
 
 
-        var order = await orderRepository
+        var order = await unitOfWork.Orders
             .GetWhereAll(o => o.Id == id)
             .FirstOrDefaultAsync();
 
