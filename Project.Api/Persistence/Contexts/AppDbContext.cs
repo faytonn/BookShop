@@ -1,10 +1,13 @@
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
 namespace Project.Api.Persistence.Contexts;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfiguration cfg) : DbContext(opts)
 {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(cfg.GetConnectionString("Default"));
+        optionsBuilder.UseNpgsql(cfg.GetConnectionString("Postgres"))
+            .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
     }
     public DbSet<User> Users => Set<User>();
     public DbSet<Author> Author => Set<Author>(); 
