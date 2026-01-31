@@ -46,3 +46,13 @@ public record struct BookRequest(
     List<AuthorRequest> Authors,
     IReadOnlyCollection<Guid> LanguageIds
 );
+
+public record struct UpdateBookRequest(
+    Guid Id,
+    string Name,
+    decimal Price,
+    byte Discount,
+    DateTime ReleaseDate,
+    List<AuthorRequest> Authors,
+    IReadOnlyCollection<Guid> LanguageIds
+);

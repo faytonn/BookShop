@@ -5,7 +5,7 @@
         Task<IEnumerable<BookResponse>> GetBooksAsync();
         Task<BookDetailedResponse?> GetBookAsync(Guid bookId);
         Task<Guid> AddBookAsync(BookRequest request, Guid sellerId);
-        Task<bool> UpdateBookAsync(Guid bookId, BookRequest request);
+        Task<BookResponse> UpdateBookAsync(UpdateBookRequest request);
         Task<bool> DeleteBookAsync(Guid bookId);
     }
 }

@@ -36,16 +36,16 @@ public static class BookEndpoints
             .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!, Enum.GetName(UserRole.Seller)!));
 
 
-            group.MapPut("{id:guid}", async (IBookService bookService, Guid id, BookRequest req) =>
+            group.MapPut("", async (ISender sender, IBookService bookService, UpdateBookRequest req) =>
             {
                 try
                 {
-                    var updated = await bookService.UpdateBookAsync(id, req);
+                    //var updated = await bookService.UpdateBookAsync(req);
 
-                    if (!updated)
-                        return Results.NotFound("Book not found.");
+                    //if (!updated)
+                    //    return Results.NotFound("Book not found.");
 
-                    return Results.Ok("Book updated successfully.");
+                    //return Results.Ok("Book updated successfully.");
                 }
                 catch (DbUpdateException e)
                 {

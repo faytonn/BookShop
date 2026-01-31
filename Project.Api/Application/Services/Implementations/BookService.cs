@@ -162,11 +162,10 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
         }
     }
 
-    public async Task<bool> UpdateBookAsync(Guid bookId, BookRequest request)
+    public async Task<BookResponse> UpdateBookAsync(UpdateBookRequest request)
     {
-        var book = await unitOfWork.Books.FindAsync(bookId);
-        if (book is null)
-            return false;
+        var book = await unitOfWork.Books.FindAsync(request.Id)
+            ?? throw new NullReferenceException("No book found.");
 
         book.Name = request.Name;
         book.Price = request.Price;
@@ -175,7 +174,15 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
 
         await unitOfWork.SaveChangesAsync();
 
-        return true;
+        return new BookResponse(
+            book.Id,
+            book.Name,
+            book.Price,
+            book.Discount,
+            book.ReleaseDate,
+            book.Authors.Select(a => new AuthorResponse(a.AuthorId, a.Author.Name)),
+            book.BookSellers.Select(b => b.Seller.Name)
+            );
     }
 
     public async Task<bool> DeleteBookAsync(Guid bookId)
