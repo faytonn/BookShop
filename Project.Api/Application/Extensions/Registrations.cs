@@ -10,6 +10,10 @@ namespace Project.Api.Application.Extensions
             services.AddScoped<ICouponService, CouponService>();
             services.AddScoped<IOrderService, OrderService>();
 
+            services.AddMediatR(
+                config => config.RegisterServicesFromAssembly(typeof(Program).Assembly)
+            );
+
             return services;
         }
     }

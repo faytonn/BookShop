@@ -49,11 +49,8 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
 
     public async Task<Guid> AddBookAsync(BookRequest request, Guid sellerId)
     {
-        var sellerExists = await unitOfWork.Sellers.FindAsync(sellerId);
-
-
-        if (sellerExists == null)
-            throw new InvalidDataException("You are not an authorized seller in this enterprise.");
+        var sellerExists = await unitOfWork.Sellers.FindAsync(sellerId) 
+            ?? throw new InvalidDataException("You are not an authorized seller in this enterprise.");
 
         var newBook = new Book
         {
@@ -63,7 +60,6 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
             Discount = request.Discount,
             ReleaseDate = request.ReleaseDate,
         };
-
 
         using var transaction = await unitOfWork.BeginTransactionAsync();
 
@@ -135,7 +131,6 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
                     }
                 }
             }
-           
 
             var bookSeller = new BookSeller
             {
@@ -150,10 +145,20 @@ public sealed class BookService(IUnitOfWork unitOfWork) : IBookService
 
             return newBook.Id;
         }
-        catch
+        catch (DbUpdateException e)
         {
             await unitOfWork.RollbackAsync();
-            throw;
+            throw new DbUpdateException(e.Message);
+        }
+        catch (InvalidOperationException e)
+        {
+            await unitOfWork.RollbackAsync();
+            throw new InvalidOperationException(e.Message);
+        }
+        catch (Exception e)
+        {
+            await unitOfWork.RollbackAsync();
+            throw new Exception(e.Message);
         }
     }
 

@@ -34,3 +34,4 @@ global using Project.Api.Infrastucture.Providers.Tokens;
 global using Project.Api.Application.Services;
 global using Project.Api.Application.Services.Implementations;
 global using Project.Api.Persistence.UnitOfWorks;
+global using MediatR;

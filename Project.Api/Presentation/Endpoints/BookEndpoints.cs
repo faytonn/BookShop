@@ -1,4 +1,8 @@
-﻿namespace Project.Api.Presentation.Endpoints;
+﻿using Project.Api.Features.Books.Commands.AddBook;
+using Project.Api.Features.Books.Queries.GetBookById;
+using Project.Api.Features.Books.Queries.GetBooks;
+
+namespace Project.Api.Presentation.Endpoints;
 
 public static class BookEndpoints
 {
@@ -8,58 +12,28 @@ public static class BookEndpoints
         {
             var group = route.MapGroup("api/v1/books");
 
-            group.MapGet("", async (IBookService bookService, IMemoryCache cache) =>
+            group.MapGet("", async (ISender sender) =>
             {
-                var books = await cache.GetOrCreateAsync("books:all", async entry =>
-                {
-                    entry.AbsoluteExpiration = DateTime.Now.AddMinutes(30);
-                    return await bookService.GetBooksAsync();
-                });
-                return Results.Ok(books);
+                var response = await sender.Send(new GetBooksQueryRequest());
+                return Results.Ok(response);
+            });
+
+            group.MapGet("{id}", async (string id, ISender sender) =>
+            {
+                var response = await sender.Send(new GetBookByIdQueryRequest(id));
+                return Results.Ok(response);
             });
 
 
-            group.MapGet("{id}", async (IBookService bookService, IMemoryCache cache, string id) =>
-            {
-
-                if (!Guid.TryParse(id, out var bookId))
-                    return Results.BadRequest("Invalid Book Id.");
-
-                var book = await cache.GetOrCreateAsync($"book:{bookId}", async entry =>
-                {
-                    entry.AbsoluteExpiration = DateTime.Now.AddMinutes(30);
-                    return await bookService.GetBookAsync(bookId);
-                });
-
-                return Results.Ok(book);
-            });
-
-
-            group.MapPost("", async (IBookService bookService, BookRequest req, IHttpContextAccessor accessor) =>
+            group.MapPost("", async (ISender sender, BookRequest req, IHttpContextAccessor accessor) =>
             {
                 var sellerId = accessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                if (string.IsNullOrEmpty(sellerId) || !Guid.TryParse(sellerId, out var sellerGuid))
-                    return Results.BadRequest("The requested user id not found.");
+                var response = await sender.Send(new AddBookCommandRequest(req, sellerId));
 
-                try
-                {
-                    var bookId = await bookService.AddBookAsync(req, sellerGuid);
-                    return Results.Created();
-                }
-                catch (DbUpdateException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (InvalidOperationException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (Exception e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-            }).RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!, Enum.GetName(UserRole.Seller)!));
+                return Results.Created($"/api/v1/books/{response.BookId}", response);
+            })
+            .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!, Enum.GetName(UserRole.Seller)!));
 
 
             group.MapPut("{id:guid}", async (IBookService bookService, Guid id, BookRequest req) =>
