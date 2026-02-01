@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Project.Api.Domain.Entities.Commons;
+using System.ComponentModel.DataAnnotations;
 
 namespace Project.Api.Domain.Entities;
 

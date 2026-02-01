@@ -13,3 +13,7 @@ public sealed class GetBooksQueryHandler(IBookService bookService, IMemoryCache 
         return new GetBooksQueryResponse(books);
     }
 }
+
+public sealed record GetBooksQueryRequest() : IRequest<GetBooksQueryResponse>;
+
+public sealed record GetBooksQueryResponse(IEnumerable<BookResponse>? Data);

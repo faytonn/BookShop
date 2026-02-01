@@ -1,3 +1,5 @@
+using Project.Api.Domain.Entities.Commons;
+
 namespace Project.Api.Domain.Entities;
 
 public class Coupon : AuditableEntity, ISoftDelete

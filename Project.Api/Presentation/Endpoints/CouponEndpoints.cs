@@ -1,8 +1,5 @@
-﻿using Azure;
-using Project.Api.Application.Services;
-using System.ComponentModel.DataAnnotations;
+﻿namespace Project.Api.Presentation.Endpoints;
 
-namespace Project.Api.Presentation.Endpoints;
 
 public static class CouponEndpoints
 {
@@ -12,162 +9,66 @@ public static class CouponEndpoints
         {
             var group = route.MapGroup("api/v1/coupons");
 
-            group.MapGet("", async (ICouponService couponService, IValidator<CouponRequest> validator) =>
+            group.MapGet("", async (ISender sender) =>
             {
-                var coupons = couponService.GetCoupons();
-                return Results.Ok(coupons);
-            });
+                var response = await sender.Send(new GetCouponsQueryRequest());
+                return Results.Ok(response.Coupons);
+            })
+            .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!));;
 
-            group.MapGet("{id}", async (ICouponService couponService, IValidator<CouponRequest> validator, string id) =>
+            group.MapGet("{id:guid}", async (ISender sender, Guid id) =>
             {
-                if (!Guid.TryParse(id, out var couponId))
-                    return Results.BadRequest("Invalid Coupon Id.");
+                var response = await sender.Send(new GetCouponByIdQueryRequest(id));
+                return Results.Ok(response.Coupon);
+            })
+           .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!)); ;
 
-                var coupon = await couponService.GetCouponAsync(couponId);
 
-                if (coupon is null)
-                    return Results.NotFound("Coupon not found.");
-
-                return Results.Ok(coupon);
-            });
-
-            group.MapGet("code/{code}", async (ICouponService couponService, IValidator<CouponRequest> validator, string code) =>
+            group.MapGet("code/{code}", async (ISender sender, string code) =>
             {
-                try
-                {
-                    var coupon = await couponService.GetCouponByCodeAsync(code);
+                var response = await sender.Send(new GetCouponByCodeQueryRequest(code));
+                return Results.Ok(response.Coupon);
+            })
+           .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!)); 
 
-                    if (coupon is null)
-                        return Results.NotFound("Coupon not found or inactive.");
-
-                    return Results.Ok(coupon);
-                }
-                catch (ArgumentException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-            });
-
-            group.MapPost("", async (ICouponService couponService, IValidator<CouponRequest> validator, CouponRequest req) =>
+            group.MapPost("", async (ISender sender, CouponRequest req) =>
             {
-                var validation = validator.Validate(req);
-                if (!validation.IsValid)
-                    return Results.BadRequest(validation.Errors);
-                try
-                {
-                    var response = await couponService.CreateCouponAsync(req);
-
-                    return Results.Created(
-                        $"api/v1/coupons/{response.Id}",
-                        new { id = response.Id }
-                    );
-                }
-                catch (ArgumentException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (DbUpdateException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (Exception e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-            }).RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!));
+                var response = await sender.Send(new CreateCouponCommandRequest(req));
+                return Results.Created($"/api/v1/coupons/{response.CouponId}", response);
+            })
+            .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!)); ;
 
 
-            group.MapPut("{id:guid}", async (ICouponService couponService, Guid id, CouponRequest req) =>
+            group.MapPut("{id:guid}", async (ISender sender, Guid id, CouponRequest req) =>
             {
-                try
-                {
-                    var response = await couponService.UpdateCouponAsync(id, req);
+                var response = await sender.Send(new UpdateCouponCommandRequest(id, req));
+                return Results.Ok(response);
+            })
+            .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!));
 
-                    if (response is null)
-                        return Results.NotFound("Coupon not found.");
-
-                    return Results.Ok(response);
-                }
-                catch (ArgumentException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (DbUpdateException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (Exception e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-            }).RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!));
-
-
-            group.MapPatch("{id:guid}/activate", async (ICouponService couponService, Guid id) =>
+            group.MapPatch("{id:guid}/activate", async (ISender sender, Guid id) =>
             {
-                try
-                {
-                    var activated = await couponService.ActivateCouponAsync(id);
-
-                    if (!activated)
-                        return Results.NotFound("Coupon not found.");
-
-                    return Results.NoContent();
-                }
-                catch (DbUpdateException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (Exception e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-            }).RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!));
+                await sender.Send(new ActivateCouponCommandRequest(id));
+                return Results.NoContent();
+            })
+            .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!)); ;
 
 
-            group.MapPatch("{id:guid}/deactivate", async (ICouponService couponService, Guid id) =>
+            group.MapPatch("{id:guid}/deactivate", async (ISender sender, Guid id) =>
             {
-                try
-                {
-                    var deactivated = await couponService.DeactivateCouponAsync(id);
-
-                    if (!deactivated)
-                        return Results.NotFound("Coupon not found.");
-
-                    return Results.NoContent();
-                }
-                catch (DbUpdateException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (Exception e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-            }).RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!));
+                await sender.Send(new DeactivateCouponCommandRequest(id));
+                return Results.NoContent();
+            })
+            .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!)); ;
 
 
-            group.MapDelete("{id:guid}", async (ICouponService couponService, Guid id) =>
+            group.MapDelete("{id:guid}", async (ISender sender, Guid id) =>
             {
-                try
-                {
-                    var deleted = await couponService.DeleteCouponAsync(id);
+                await sender.Send(new DeleteCouponCommandRequest(id));
+                return Results.NoContent();
+            })
+            .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!)); ;
 
-                    if (!deleted)
-                        return Results.NotFound("Coupon not found.");
-
-                    return Results.NoContent();
-                }
-                catch (DbUpdateException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (Exception e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-            }).RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!));
         }
-
     }
 }

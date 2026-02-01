@@ -1,4 +1,6 @@
-﻿namespace Project.Api.Domain.Entities;
+﻿using Project.Api.Domain.Entities.Commons;
+
+namespace Project.Api.Domain.Entities;
 
 public class Author : AuditableEntity, ISoftDelete
 {

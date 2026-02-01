@@ -8,99 +8,45 @@ public static class AuthEndpoints
         {
             var group = route.MapGroup("api/v1/auth");
 
-            group.MapPost("login", async (LoginRequest login, IValidator<LoginRequest> validator, [FromServices] IAuthService authService) =>
+            group.MapPost("login", async (ISender sender, LoginRequest req) =>
             {
-                var validation = validator.Validate(login);
-                if (!validation.IsValid) return Results.BadRequest(validation.Errors);
+                var response = await sender.Send(new LoginCommandRequest(req));
 
-                try
-                {
-                    var token = await authService.LoginAsync(login);
-                    return Results.Ok(new LoginResponse(token));
-                }
-                catch (InvalidOperationException ex)
-                {
-                    return Results.Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
-                }
+                return Results.Ok(new LoginResponse(response.Token));
             });
 
-            group.MapPost("register", async (IAuthService authService, RegisterRequest registerRequest) =>
+            group.MapPost("register", async (ISender sender, RegisterRequest req) =>
             {
-                try
-                {
-                    await authService.RegisterAsync(registerRequest);
+                await sender.Send(new RegisterCommandRequest(req));
 
-                    return Results.Created();
-                }
-                catch (InvalidOperationException ex)
-                {
-                    return Results.Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
-                }
-                catch (DbUpdateException ex)
-                {
-                    return Results.Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
-                }
+                return Results.Created();
             });
 
-            group.MapPatch("change-password", async (IAuthService authService, ChangePasswordRequest passwordRequest, IHttpContextAccessor accessor) =>
+            group.MapPatch("change-password", async (ISender sender, ChangePasswordRequest req, IHttpContextAccessor accessor) =>
             {
-                try
-                {
-                    var userId = accessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User id claim not found");
+                var userId = accessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                    await authService.ChangePasswordAsync(Guid.Parse(userId), passwordRequest);
+                await sender.Send(new ChangePasswordCommandRequest(userId, req));
 
-                    return Results.NoContent();
-                }
-                catch (InvalidOperationException ex)
-                {
-                    return Results.Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
-                }
-            }).RequireAuthorization();
+                return Results.NoContent();
+            })
+            .RequireAuthorization();
 
-
-            group.MapGet("me", async (IAuthService authService, IMemoryCache cache, IHttpContextAccessor accessor) =>
+            group.MapGet("me", async (ISender sender, IHttpContextAccessor accessor) =>
             {
-                var userId = accessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User id claim not found");
+                var userId = accessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-
-                var response = await cache.GetOrCreateAsync($"currentUser:{userId}", async entry =>
-                {
-                    entry.AbsoluteExpiration = DateTime.Now.AddHours(6);
-                    var user = await authService.GetCurrentUserInfo(Guid.Parse(userId));
-                    return user;
-                });
+                var response = await sender.Send(new GetCurrentUserQueryRequest(userId));
 
                 return Results.Ok(response);
-            }).RequireAuthorization();
+            })
+             .RequireAuthorization();
 
-            group.MapDelete("logout", async (IAuthService authService, IHttpContextAccessor accessor) =>
+            group.MapDelete("logout", async (ISender sender, IHttpContextAccessor accessor) =>
             {
-                try
-                {
-                    await authService.LogoutAsync(accessor.HttpContext?.User!);
-                    return Results.NoContent();
-                }
-                catch (InvalidOperationException ex)
-                {
-                    return Results.Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.BadRequest);
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem(detail: ex.Message, statusCode: (int)HttpStatusCode.InternalServerError);
-                }
+                await sender.Send(new LogoutCommandRequest(accessor.HttpContext?.User!));
+
+                return Results.NoContent();
             });
         }
     }

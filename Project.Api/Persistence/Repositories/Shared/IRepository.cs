@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
+using Project.Api.Domain.Entities.Commons;
 using System.Linq.Expressions;
 
 namespace Project.Api.Persistence.Repositories.Shared;

@@ -28,5 +28,6 @@ app.MapAuthEndpoints();
 app.MapCategoryEndpoints();
 app.MapBookEndpoints();
 app.MapCouponEndpoints();
+app.MapOrderEndpoints();
 
 app.Run();

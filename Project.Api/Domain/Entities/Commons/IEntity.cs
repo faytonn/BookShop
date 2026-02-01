@@ -1,4 +1,4 @@
-namespace Project.Api.Domain.Entities;
+namespace Project.Api.Domain.Entities.Commons;
 
 public interface IEntity;
 

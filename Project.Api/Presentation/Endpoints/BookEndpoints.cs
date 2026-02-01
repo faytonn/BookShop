@@ -1,6 +1,4 @@
-﻿using Project.Api.Features.Books.Commands.AddBook;
-using Project.Api.Features.Books.Queries.GetBookById;
-using Project.Api.Features.Books.Queries.GetBooks;
+﻿
 
 namespace Project.Api.Presentation.Endpoints;
 
@@ -36,48 +34,20 @@ public static class BookEndpoints
             .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!, Enum.GetName(UserRole.Seller)!));
 
 
-            group.MapPut("", async (ISender sender, IBookService bookService, UpdateBookRequest req) =>
+            group.MapPut("{id:guid}", async (ISender sender, Guid id, BookRequest req) =>
             {
-                try
-                {
-                    //var updated = await bookService.UpdateBookAsync(req);
-
-                    //if (!updated)
-                    //    return Results.NotFound("Book not found.");
-
-                    //return Results.Ok("Book updated successfully.");
-                }
-                catch (DbUpdateException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (Exception e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-            }).RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!, Enum.GetName(UserRole.Seller)!));
+                var response = await sender.Send(new UpdateBookCommandRequest(id, req));
+                return Results.Ok(response);
+            })
+             .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!, Enum.GetName(UserRole.Seller)!));
 
 
-            group.MapDelete("{id:guid}", async (IBookService bookService, Guid id) =>
+            group.MapDelete("{id:guid}", async (ISender sender, Guid id) =>
             {
-                try
-                {
-                    var deleted = await bookService.DeleteBookAsync(id);
-
-                    if (!deleted)
-                        return Results.NotFound("Book not found.");
-
-                    return Results.NoContent();
-                }
-                catch (DbUpdateException e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
-                catch (Exception e)
-                {
-                    return Results.BadRequest(e.Message);
-                }
+                await sender.Send(new DeleteBookCommandRequest(id));
+                return Results.NoContent();
             }).RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!));
+
 
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Project.Api.Application.DTOs;
+using Project.Api.Domain.Entities.Commons;
 
 namespace Project.Api.Domain.Entities
 {

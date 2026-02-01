@@ -31,6 +31,8 @@ public static class Registrations
 
     public static void AddPresentationMiddlewares(this WebApplication app)
     {
+        app.UseCustomExceptionHandler();
+
         if (app.Environment.IsProduction())
         {
             app.UseHttpsRedirection();

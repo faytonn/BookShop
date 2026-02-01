@@ -26,6 +26,8 @@ global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
 global using Project.Api.Application.DTOs;
 global using Project.Api.Application.Services.Abstractions;
+global using Project.Api.Domain.Entities.Commons.GlobalException.BaseExceptions;
+global using Project.Api.Presentation.Middlewares;
 global using System.Net;
 global using System.Security.Claims;
 global using System.Text.Json;
@@ -35,3 +37,38 @@ global using Project.Api.Application.Services;
 global using Project.Api.Application.Services.Implementations;
 global using Project.Api.Persistence.UnitOfWorks;
 global using MediatR;
+
+global using Project.Api.Features.Auth.Commands.Login;
+global using Project.Api.Features.Auth.Commands.Register;
+global using Project.Api.Features.Auth.Commands.ChangePassword;
+global using Project.Api.Features.Auth.Commands.Logout;
+global using Project.Api.Features.Auth.Queries.GetCurrentUser;
+global using Project.Api.Features.Coupons.Commands.UpdateCoupon;
+global using Project.Api.Features.Coupons.Commands.ActivateCoupon;
+global using Project.Api.Features.Coupons.Commands.DeactivateCoupon;
+global using Project.Api.Features.Coupons.Commands.CreateCoupon;
+global using Project.Api.Features.Coupons.Commands.DeleteCoupon;
+global using Project.Api.Features.Coupons.Queries.GetCoupons;
+global using Project.Api.Features.Coupons.Queries.GetCouponById;
+global using Project.Api.Features.Coupons.Queries.GetCouponByCode;
+global using Project.Api.Features.Books.Commands.AddBook;
+global using Project.Api.Features.Books.Commands.DeleteBook;
+global using Project.Api.Features.Books.Commands.UpdateBook;
+global using Project.Api.Features.Books.Queries.GetBookById;
+global using Project.Api.Features.Books.Queries.GetBooks;
+global using Project.Api.Features.Categories.Queries.GetCategories;
+global using Project.Api.Features.Categories.Queries.GetCategoryById;
+global using Project.Api.Features.Categories.Queries.GetCategoryBooks;
+global using Project.Api.Features.Categories.Commands.CreateCategory;
+global using Project.Api.Features.Categories.Commands.UpdateCategory;
+global using Project.Api.Features.Categories.Commands.DeleteCategory;
+global using Project.Api.Features.Orders.Commands.AddOrder;
+global using Project.Api.Features.Orders.Commands.DeleteOrder;
+global using Project.Api.Features.Orders.Queries.GetAllOrders;
+global using Project.Api.Features.Orders.Queries.GetMyOrders;
+global using Project.Api.Features.Orders.Queries.GetOrderDetail;
+
+global using ArgumentException =
+    Project.Api.Domain.Entities.Commons.GlobalException.ArgumentException;
+global using NotFoundException =
+    Project.Api.Domain.Entities.Commons.GlobalException.NotFoundException;

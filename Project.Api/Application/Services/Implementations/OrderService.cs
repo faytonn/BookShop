@@ -212,4 +212,15 @@ public sealed class OrderService(IUnitOfWork unitOfWork, IHttpContextAccessor ac
     );
 
     }
+
+    public async Task DeleteOrderAsync(Guid orderId)
+    {
+        var order = await unitOfWork.Orders.GetWhereAll(o => o.Id == orderId).FirstOrDefaultAsync();
+
+        if (order is null)
+            throw new NullReferenceException("Order not found.");
+
+        order.IsDeleted = true; 
+        await unitOfWork.Orders.SaveChangesAsync();
+    }
 }
