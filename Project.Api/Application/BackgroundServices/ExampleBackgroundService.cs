@@ -13,9 +13,14 @@ public sealed class ExampleBackgroundService(IServiceScopeFactory scopeFactory, 
                 using var unitOfWork = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<IUnitOfWork>();
 
                 var booksCount = await unitOfWork.Books.GetAll().CountAsync(stoppingToken);
+                var usersCount = await unitOfWork.Users.GetAll().CountAsync(stoppingToken);
+
 
                 if (logger.IsEnabled(LogLevel.Information))
-                    logger.LogInformation("Books Count: {booksCount}", booksCount);
+                {
+                    logger.LogInformation($"Books Count: {booksCount}");
+                    logger.LogInformation($"Users count: {usersCount}");
+                }
             }
         }
         catch (OperationCanceledException ex)
@@ -24,3 +29,5 @@ public sealed class ExampleBackgroundService(IServiceScopeFactory scopeFactory, 
         }
     }
 }
+
+//addscoped-related stuff cannot be added to background service constructors
