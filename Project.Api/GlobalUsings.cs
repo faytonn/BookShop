@@ -22,8 +22,6 @@ global using Project.Api.Persistence.Repositories.Languages;
 global using Project.Api.Persistence.Repositories.Orders;
 global using Project.Api.Persistence.Repositories.Sellers;
 global using Project.Api.Persistence.Repositories.Users;
-global using Microsoft.AspNetCore.Authorization;
-global using Microsoft.AspNetCore.Mvc;
 global using Project.Api.Application.DTOs;
 global using Project.Api.Application.Services.Abstractions;
 global using Project.Api.Domain.Entities.Commons.GlobalException.BaseExceptions;
@@ -72,3 +70,5 @@ global using ArgumentException =
     Project.Api.Domain.Entities.Commons.GlobalException.ArgumentException;
 global using NotFoundException =
     Project.Api.Domain.Entities.Commons.GlobalException.NotFoundException;
+
+global using Project.Api.Application.BackgroundServices;

@@ -14,6 +14,8 @@ namespace Project.Api.Application.Extensions
                 config => config.RegisterServicesFromAssembly(typeof(Program).Assembly)
             );
 
+            services.AddHostedService<ExampleBackgroundService>();
+
             return services;
         }
     }

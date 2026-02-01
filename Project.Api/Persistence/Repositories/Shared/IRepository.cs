@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-using Project.Api.Domain.Entities.Commons;
+﻿using Project.Api.Domain.Entities.Commons;
 using System.Linq.Expressions;
 
 namespace Project.Api.Persistence.Repositories.Shared;
@@ -12,7 +11,7 @@ public interface IRepository<T> where T : IEntity
     int SaveChanges();
     Task<int> SaveChangesAsync();
 
-    IQueryable<T> GetAll(bool tracking);
+    IQueryable<T> GetAll(bool tracking = false);
     IQueryable<T> GetWhereAll(Expression<Func<T, bool>> filter);
     T? Find(Guid id);
     Task<T?> FindAsync(Guid id);
