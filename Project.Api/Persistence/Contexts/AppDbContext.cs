@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Project.Api.Domain.Entities.Metrics;
 
 namespace Project.Api.Persistence.Contexts;
 
@@ -10,17 +11,18 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
             .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
     }
     public DbSet<User> Users => Set<User>();
-    public DbSet<Author> Author => Set<Author>(); 
+    public DbSet<Author> Author => Set<Author>();
     public DbSet<Book> Books => Set<Book>();
     public DbSet<BookAuthor> BookAuthors => Set<BookAuthor>();
     public DbSet<Language> Languages => Set<Language>();
+    public DbSet<Metric> Metrics => Set<Metric>();
     public DbSet<BookLanguage> BooksLanguages => Set<BookLanguage>();
     public DbSet<BookSeller> BookSellers => Set<BookSeller>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<CategoryBook> BooksCategories => Set<CategoryBook>();
     public DbSet<Coupon> Coupons => Set<Coupon>();
     public DbSet<CategoryBook> CategoriesBooks => Set<CategoryBook>();
-    public DbSet<Order> Orders => Set<Order>(); 
+    public DbSet<Order> Orders => Set<Order>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +44,5 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
         {
             e.HasKey(nameof(BookAuthor.AuthorId), nameof(BookAuthor.BookId));
         });
-
     }
 }

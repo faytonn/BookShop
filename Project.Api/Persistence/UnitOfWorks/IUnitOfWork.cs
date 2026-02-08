@@ -26,6 +26,7 @@ public interface IUnitOfWork : IDisposable
     IOrderRepository Orders { get; }
     ISellerRepository Sellers { get; }
     IUserRepository Users {  get; }
+    IMetricRepository Metrics { get; }
 
 
 }

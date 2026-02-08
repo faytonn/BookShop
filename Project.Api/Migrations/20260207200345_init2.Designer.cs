@@ -12,8 +12,8 @@ using Project.Api.Persistence.Contexts;
 namespace Project.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260125095612_InitMig")]
-    partial class InitMig
+    [Migration("20260207200345_init2")]
+    partial class init2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -233,6 +233,24 @@ namespace Project.Api.Migrations
                     b.HasIndex("Name");
 
                     b.ToTable("Languages");
+                });
+
+            modelBuilder.Entity("Project.Api.Domain.Entities.Metrics.Metric", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("MeasuredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Metrics");
                 });
 
             modelBuilder.Entity("Project.Api.Domain.Entities.Order", b =>

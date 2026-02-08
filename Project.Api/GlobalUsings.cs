@@ -22,6 +22,8 @@ global using Project.Api.Persistence.Repositories.Languages;
 global using Project.Api.Persistence.Repositories.Orders;
 global using Project.Api.Persistence.Repositories.Sellers;
 global using Project.Api.Persistence.Repositories.Users;
+global using Project.Api.Persistence.Repositories.Metrics;
+global using Project.Api.Domain.Entities.Metrics;
 global using Project.Api.Application.DTOs;
 global using Project.Api.Application.Services.Abstractions;
 global using Project.Api.Domain.Entities.Commons.GlobalException.BaseExceptions;

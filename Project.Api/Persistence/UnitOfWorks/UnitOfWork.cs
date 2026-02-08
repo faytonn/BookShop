@@ -17,6 +17,7 @@ public sealed class UnitOfWork : IUnitOfWork
     public IOrderRepository Orders { get; }
     public ISellerRepository Sellers { get; }
     public IUserRepository Users { get; }
+    public IMetricRepository Metrics { get; }
 
     public UnitOfWork(
         AppDbContext context,
@@ -30,7 +31,8 @@ public sealed class UnitOfWork : IUnitOfWork
         ILanguageRepository languageRepository,
         IOrderRepository orderRepository,
         ISellerRepository sellerRepository,
-        IUserRepository userRepository
+        IUserRepository userRepository,
+        IMetricRepository metricRepository
     )
     {
         _context = context;
@@ -45,6 +47,7 @@ public sealed class UnitOfWork : IUnitOfWork
         Orders = orderRepository;
         Sellers = sellerRepository;
         Users = userRepository;
+        Metrics = metricRepository;
     }
 
     public IDbContextTransaction? BeginTransaction() => _context.Database.BeginTransaction();
