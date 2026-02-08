@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Project.Api.Persistence.Contexts;
@@ -11,9 +12,11 @@ using Project.Api.Persistence.Contexts;
 namespace Project.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260208091910_AddBookFaker")]
+    partial class AddBookFaker
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,99 +90,75 @@ namespace Project.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("019c3c9b-7675-7855-a1bd-c4da7e20509d"),
-                            CreatedAt = new DateTime(2026, 2, 8, 9, 35, 47, 316, DateTimeKind.Utc).AddTicks(7349),
+                            Id = new Guid("019c3c8c-3d68-7e8d-b317-46a1f30cdbe3"),
+                            CreatedAt = new DateTime(2026, 2, 8, 9, 19, 9, 671, DateTimeKind.Utc).AddTicks(2701),
                             Discount = (byte)0,
                             IsDeleted = false,
                             IsReleased = false,
-                            Name = "Quia dolorem et quae maiores provident voluptatem similique",
-                            Price = 16.50m,
-                            ReleaseDate = new DateTime(2025, 9, 15, 9, 35, 47, 322, DateTimeKind.Utc).AddTicks(2733),
-                            Stock = 89
+                            Name = "Voluptatem atque odit",
+                            Price = 10.91m,
+                            ReleaseDate = new DateTime(2025, 2, 25, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(3918),
+                            Stock = 102
                         },
                         new
                         {
-                            Id = new Guid("019c3c9b-767b-7b2f-a03f-21e2c50c9b8f"),
-                            CreatedAt = new DateTime(2026, 2, 8, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(243),
+                            Id = new Guid("019c3c8c-3d6c-791a-9d70-138551143e6e"),
+                            CreatedAt = new DateTime(2026, 2, 8, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9390),
                             Discount = (byte)0,
                             IsDeleted = false,
                             IsReleased = false,
-                            Name = "Assumenda dolorum et asperiores aut rerum",
-                            Price = 48.60m,
-                            ReleaseDate = new DateTime(2025, 4, 1, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(887),
-                            Stock = 56
+                            Name = "Iusto deserunt ea quam",
+                            Price = 16.77m,
+                            ReleaseDate = new DateTime(2025, 3, 26, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9676),
+                            Stock = 98
                         },
                         new
                         {
-                            Id = new Guid("019c3c9b-767b-7c0b-8a1e-bd1fa208959a"),
-                            CreatedAt = new DateTime(2026, 2, 8, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(903),
+                            Id = new Guid("019c3c8c-3d6c-76d8-a099-ff6ef931f180"),
+                            CreatedAt = new DateTime(2026, 2, 8, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9691),
                             Discount = (byte)0,
                             IsDeleted = false,
                             IsReleased = false,
-                            Name = "Est consectetur recusandae ipsam omnis",
-                            Price = 5.04m,
-                            ReleaseDate = new DateTime(2025, 8, 24, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(959),
-                            Stock = 25
+                            Name = "In ab est animi",
+                            Price = 28.60m,
+                            ReleaseDate = new DateTime(2025, 8, 4, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9745),
+                            Stock = 44
                         },
                         new
                         {
-                            Id = new Guid("019c3c9b-767b-7717-a3cd-a8b01c232f5b"),
-                            CreatedAt = new DateTime(2026, 2, 8, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(966),
+                            Id = new Guid("019c3c8c-3d6c-7ca0-9f7e-ddff83b24da0"),
+                            CreatedAt = new DateTime(2026, 2, 8, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9752),
                             Discount = (byte)0,
                             IsDeleted = false,
                             IsReleased = false,
-                            Name = "Quae quod et",
-                            Price = 16.57m,
-                            ReleaseDate = new DateTime(2025, 3, 13, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(994),
-                            Stock = 45
+                            Name = "Voluptas aut eligendi et sint molestiae exercitationem",
+                            Price = 10.30m,
+                            ReleaseDate = new DateTime(2025, 9, 18, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9856),
+                            Stock = 123
                         },
                         new
                         {
-                            Id = new Guid("019c3c9b-767b-72f0-971c-5a3bb9763d8b"),
-                            CreatedAt = new DateTime(2026, 2, 8, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(997),
+                            Id = new Guid("019c3c8c-3d6c-71d3-b2b0-be4f433edb79"),
+                            CreatedAt = new DateTime(2026, 2, 8, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9859),
                             Discount = (byte)0,
                             IsDeleted = false,
                             IsReleased = false,
-                            Name = "Molestiae voluptatem fuga soluta quidem",
-                            Price = 35.85m,
-                            ReleaseDate = new DateTime(2025, 5, 30, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(1030),
-                            Stock = 81
+                            Name = "Ut tempora repudiandae",
+                            Price = 3.42m,
+                            ReleaseDate = new DateTime(2025, 8, 1, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9892),
+                            Stock = 38
                         },
                         new
                         {
-                            Id = new Guid("019c3c9b-767b-7db7-8245-f82acb7c6a32"),
-                            CreatedAt = new DateTime(2026, 2, 8, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(1033),
+                            Id = new Guid("019c3c8c-3d6c-7516-bb0e-e08fdaad6797"),
+                            CreatedAt = new DateTime(2026, 2, 8, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9896),
                             Discount = (byte)0,
                             IsDeleted = false,
                             IsReleased = false,
-                            Name = "Quod molestiae et omnis id consequatur quasi",
-                            Price = 11.91m,
-                            ReleaseDate = new DateTime(2025, 2, 18, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(1120),
-                            Stock = 59
-                        },
-                        new
-                        {
-                            Id = new Guid("019c3c9b-767b-74f3-bbcf-7fb0affdfbe8"),
-                            CreatedAt = new DateTime(2026, 2, 8, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(1124),
-                            Discount = (byte)0,
-                            IsDeleted = false,
-                            IsReleased = false,
-                            Name = "Voluptas et natus magnam et pariatur dicta repellat",
-                            Price = 30.94m,
-                            ReleaseDate = new DateTime(2025, 10, 22, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(1166),
-                            Stock = 18
-                        },
-                        new
-                        {
-                            Id = new Guid("019c3c9b-767b-7ac1-8d0c-96a4abbda4c2"),
-                            CreatedAt = new DateTime(2026, 2, 8, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(1169),
-                            Discount = (byte)0,
-                            IsDeleted = false,
-                            IsReleased = false,
-                            Name = "Accusantium repellat aut distinctio nihil magni",
-                            Price = 5.11m,
-                            ReleaseDate = new DateTime(2025, 4, 28, 9, 35, 47, 323, DateTimeKind.Utc).AddTicks(1201),
-                            Stock = 87
+                            Name = "Maiores voluptas sint omnis fuga ut at",
+                            Price = 6.45m,
+                            ReleaseDate = new DateTime(2025, 6, 3, 9, 19, 9, 676, DateTimeKind.Utc).AddTicks(9943),
+                            Stock = 17
                         });
                 });
 
