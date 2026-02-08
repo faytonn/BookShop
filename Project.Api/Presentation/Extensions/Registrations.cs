@@ -31,6 +31,12 @@ public static class Registrations
 
     public static void AddPresentationMiddlewares(this WebApplication app)
     {
+        using (var scope = app.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            context.Database.MigrateAsync().GetAwaiter().GetResult();
+        }
+
         app.UseCustomExceptionHandler();
 
         if (app.Environment.IsProduction())

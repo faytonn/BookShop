@@ -13,7 +13,7 @@ public sealed class Book : AuditableEntity, ISoftDelete
 
 
     public int Stock { get; set; }
-    public bool IsAvailable { get; set; }
+    public bool IsAvailable => Stock > 0;
 
 
     public List<BookLanguage> Languages { get; set; }
