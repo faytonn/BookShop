@@ -6,6 +6,6 @@ namespace Project.Api.Domain.Entities.Metrics;
 public class Metric : BaseEntity
 {
     public required string Key { get; set; }
-    public required string Value { get; set; } // JSON string - like Order.OrderItems
+    public required string Value { get; set; } 
     public DateTime MeasuredAt { get; set; } = DateTime.UtcNow;
 }
