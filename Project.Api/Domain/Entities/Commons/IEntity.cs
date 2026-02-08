@@ -11,7 +11,13 @@ public abstract class BaseEntity : Entity
 
 public abstract class AuditableEntity : BaseEntity
 {
-    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; private set; }
+
+    public AuditableEntity SetCreatedAt(DateTime date)
+    {
+        CreatedAt = date;
+        return this;
+    }
 }
 
 public interface ISoftDelete

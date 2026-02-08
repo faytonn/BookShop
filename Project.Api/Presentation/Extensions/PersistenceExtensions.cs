@@ -1,4 +1,6 @@
-﻿namespace Project.Api.Presentation.Extensions;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
+
+namespace Project.Api.Presentation.Extensions;
 
 public static class PersistenceExtensions
 {
@@ -6,7 +8,10 @@ public static class PersistenceExtensions
     {
         public IServiceCollection AddPersistenceServices()
         {
-            services.AddDbContext<AppDbContext>();
+            services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+            {
+                options.AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());
+            });
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
