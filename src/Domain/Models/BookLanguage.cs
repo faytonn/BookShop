@@ -1,6 +1,4 @@
-﻿using Project.Api.Domain.Entities.Commons;
-
-namespace Project.Api.Domain.Entities;
+﻿namespace Domain.Models;
 
 public sealed class BookLanguage : Entity
 {
