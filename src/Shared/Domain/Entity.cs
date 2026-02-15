@@ -9,11 +9,17 @@ public abstract class Entity<T> : Entity
     public required T Id { get; init; }
 }
 
-public abstract class AuditableEntity<T> : Entity<T>
+public interface IAuditableEntity
 {
-    public DateTime CreatedAt { get; private set; }
+    DateTime CreatedAt { get; set; }
+    IAuditableEntity SetCreatedAt(DateTime date);
+}
 
-    public AuditableEntity<T> SetCreatedAt(DateTime date)
+public abstract class AuditableEntity<T> : Entity<T>, IAuditableEntity
+{
+    public DateTime CreatedAt { get; set; }
+
+    public IAuditableEntity SetCreatedAt(DateTime date)
     {
         CreatedAt = date;
         return this;

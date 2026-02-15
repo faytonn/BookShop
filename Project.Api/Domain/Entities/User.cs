@@ -11,6 +11,7 @@ public sealed class User : AuditableEntity, ISoftDelete
     public UserRole Role { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime? LastLoggedAt { get; set; }
+
     public List<Order> Orders { get; set; }
 }
 

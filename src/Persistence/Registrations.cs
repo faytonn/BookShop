@@ -6,6 +6,12 @@ public static class Registrations
     {
         public IServiceCollection AddPersistence(IConfiguration configuration)
         {
+            services.AddDbContext<AppDbContext>((sp, opts) =>
+            {
+                opts.UseNpgsql(configuration.GetConnectionString("Postgres"));
+                opts.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+            });
+
             return services;
         }
     }
