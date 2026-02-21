@@ -1,0 +1,138 @@
+using Application.CQRS.Auth.DTOs;
+using Application.Services.Abstractions;
+using Domain.Models;
+using Infrastructure.Providers.Tokens;
+using Microsoft.EntityFrameworkCore;
+using Persistence.UnitOfWorks;
+using System.Security.Claims;
+
+namespace Application.Services.Implementations;
+
+public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
+{
+    public async Task<string> LoginAsync(LoginRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim()))
+            throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
+        var user = await unitOfWork.Users.GetWhereAll(e => e.Email.Equals(request.Email.ToLower()))
+                                       .FirstOrDefaultAsync();
+        if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.HashedPassword)) throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
+
+        var token = tokenProvider.GenerateJwtToken(user);
+
+        return token;
+    }
+
+    public async Task RegisterAsync(RegisterRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim())) throw new InvalidOperationException("Invalid format for email or password");
+        var requestEmail = request.Email.Trim().ToLower();
+        var isExist = await unitOfWork.Users.GetWhereAll(e => e.Email.Equals(requestEmail))
+                                          .AnyAsync();
+
+        if (isExist) throw new/* BadRequest*/InvalidOperationException("User already exists!");
+
+        var newUser = new User
+        {
+            Id = Guid.CreateVersion7(),
+            Name = request.Name,
+            Surname = request.Surname,
+            Email = requestEmail,
+            HashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password, BCrypt.Net.BCrypt.GenerateSalt()),
+            Role = request.UserRole
+        };
+
+        if (newUser.Role == UserRole.Seller)
+        {
+            unitOfWork.Sellers.Add(new Seller
+            {
+                Id = newUser.Id,
+                Name = newUser.Name,
+                Surname = newUser.Surname,
+                Email = newUser.Email
+            });
+        }
+
+        try
+        {
+            unitOfWork.Users.Add(newUser);
+            await unitOfWork.SaveChangesAsync();
+        }
+        catch (Domain.Exceptions.DbUpdateException ex)
+        {
+            throw new Domain.Exceptions.DbUpdateException($"An error occured: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"An error occured: {ex.Message}");
+        }
+    }
+
+    public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequest passwordRequest)
+    {
+        var user = await unitOfWork.Users.FindAsync(userId);
+        if (user is null)
+            throw new InvalidOperationException("No such user exists.");
+
+        bool isPasswordValid = BCrypt.Net.BCrypt.Verify(passwordRequest.OldPassword, user.HashedPassword);
+
+        if (!isPasswordValid)
+            throw new InvalidOperationException("Passwords do not match.");
+
+        if (passwordRequest.OldPassword == passwordRequest.NewPassword)
+            throw new InvalidOperationException("New password cannot be the same with the old password.");
+
+        try
+        {
+            user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(passwordRequest.NewPassword, BCrypt.Net.BCrypt.GenerateSalt());
+            await unitOfWork.SaveChangesAsync();
+        }
+        catch (Domain.Exceptions.DbUpdateException ex)
+        {
+            throw new Domain.Exceptions.DbUpdateException($"An error occured: {ex.Message}");
+        }
+        catch (BCrypt.Net.SaltParseException ex)
+        {
+            throw new BCrypt.Net.SaltParseException($"An error occured: {ex.Message}");
+        }
+        catch (Domain.Exceptions.ArgumentException ex)
+        {
+            throw new Domain.Exceptions.ArgumentException($"An error occured: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"An error occured: {ex.Message}");
+        }
+    }
+
+    public Task LogoutAsync(ClaimsPrincipal user)
+    {
+        var identity = user.Identity as ClaimsIdentity;
+
+        if (identity is not null)
+        {
+            foreach (var claim in identity.Claims.ToList())
+                identity.RemoveClaim(claim);
+
+            return Task.CompletedTask;
+        }
+
+        throw new InvalidOperationException("Identity not found!");
+    }
+
+
+    public async Task<UserResponse> GetCurrentUserInfo(Guid userId)
+    {
+        var user = await unitOfWork.Users.GetWhereAll(u => u.Id == userId).Select(u => new UserResponse
+        (
+            u.Id,
+            u.Name,
+            u.Surname,
+            u.Email,
+            Enum.GetName(u.Role)!,
+            u.LastLoggedAt
+        )).FirstOrDefaultAsync();
+
+        return user;
+    }
+}

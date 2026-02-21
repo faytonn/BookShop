@@ -1,13 +1,19 @@
 ﻿namespace Application.CQRS.Books.Features.GetBooks;
 
-public record GetBooksQueryRequest() : IRequest<GetBooksQueryResponse>;
-public record GetBooksQueryResponse(BookDto Book);
+public sealed record GetBooksQueryRequest() : IRequest<GetBooksQueryResponse>;
 
+public sealed record GetBooksQueryResponse(IEnumerable<DTOs.BookResponse>? Data);
 
-public sealed class GetBooksQueryHandler(AppDbContext context) : IRequestHandler<GetBooksQueryRequest, GetBooksQueryResponse>
+public sealed class GetBooksQueryHandler(IBookService bookService, IMemoryCache cache) : IRequestHandler<GetBooksQueryRequest, GetBooksQueryResponse>
 {
-    public Task<GetBooksQueryResponse> Handle(GetBooksQueryRequest request, CancellationToken cancellationToken)
+    public async Task<GetBooksQueryResponse> Handle(GetBooksQueryRequest query, CancellationToken cancellationToken)
     {
-        return default;
+        var books = await cache.GetOrCreateAsync("books:all", async entry =>
+        {
+            entry.AbsoluteExpiration = DateTime.Now.AddMinutes(30);
+            return await bookService.GetBooksAsync();
+        });
+
+        return new GetBooksQueryResponse(books);
     }
 }

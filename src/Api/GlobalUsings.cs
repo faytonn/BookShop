@@ -1,1 +1,14 @@
 ﻿global using Persistence;
+global using Microsoft.EntityFrameworkCore;
+global using Domain.Models;
+global using Domain.Exceptions.BaseException;
+global using System.Net;
+global using System.Text;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.IdentityModel.Tokens;
+global using FluentValidation;
+global using Carter;
+global using Api.Middlewares;
+global using Api.Extensions;
+global using Application.Extensions;
+global using Infrastructure.Extensions;

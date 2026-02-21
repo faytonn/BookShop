@@ -1,7 +1,14 @@
-﻿namespace Persistence.Data;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> opts) : DbContext(opts)
+namespace Persistence.Data;
+
+public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfiguration cfg) : DbContext(opts)
 {
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseNpgsql(cfg.GetConnectionString("Postgres"))
+            .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
     public DbSet<User> Users => Set<User>();
     public DbSet<Author> Author => Set<Author>();
     public DbSet<Book> Books => Set<Book>();

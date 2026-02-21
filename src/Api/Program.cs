@@ -1,13 +1,27 @@
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddMemoryCache();
+
+builder.Logging.AddConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+
+builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddValidatorsFromAssembly(typeof(Application.Extensions.Registrations).Assembly);
+
 builder.Services
-    .AddPersistence(builder.Configuration);
+    .AddApplicationRegistrations()
+    .AddPersistenceServices(builder.Configuration)
+    .AddInfrastructureRegistrations()
+    .AddPresentationRegistrations(builder.Environment, builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
-}
+app.AddPresentationMiddlewares();
+
+app.MapCarter();
 
 app.Run();

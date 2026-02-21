@@ -4,7 +4,7 @@ public sealed class GetBooksEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("books", Handler);
+        app.MapGet("api/v1/books", Handler);
     }
 
     private static async Task<IResult> Handler(ISender sender)

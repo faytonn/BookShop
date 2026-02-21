@@ -68,6 +68,7 @@ global using Project.Api.Application.Features.Orders.Queries.GetAllOrders;
 global using Project.Api.Application.Features.Orders.Queries.GetMyOrders;
 global using Project.Api.Application.Features.Orders.Queries.GetOrderDetail;
 
+
 global using ArgumentException =
     Project.Api.Domain.Entities.Commons.GlobalException.ArgumentException;
 global using NotFoundException =

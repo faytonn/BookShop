@@ -6,3 +6,5 @@ global using Domain.Models;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Bogus;
 global using Microsoft.EntityFrameworkCore.Diagnostics;
+global using  Microsoft.AspNetCore.Http;
+global using Persistence.Repositories.Shared;
