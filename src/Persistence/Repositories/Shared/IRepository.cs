@@ -13,7 +13,7 @@ public interface IRepository<T> where T : IEntity
     Task<int> SaveChangesAsync();
 
     IQueryable<T> GetAll(bool tracking = false);
-    IQueryable<T> GetWhereAll(Expression<Func<T, bool>> filter);
+    IQueryable<T> GetWhereAll(Expression<Func<T, bool>> filter, bool tracking = false);
     T? Find(Guid id);
     Task<T?> FindAsync(Guid id);
     Task<IDbContextTransaction> BeginTransactionAsync();

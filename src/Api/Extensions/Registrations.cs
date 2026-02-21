@@ -26,6 +26,7 @@ public static class Registrations
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(cfg.GetValue<string>("Jwt:SecurityKey")!)),
                 ValidIssuer = "",
                 ValidAudience = "",
+                ClockSkew = TimeSpan.Zero,
             };
         });
         services.AddAuthorization();

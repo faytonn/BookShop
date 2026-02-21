@@ -6,6 +6,8 @@ public sealed class User : AuditableEntity<Guid>, ISoftDelete
     public string? Surname { get; set; }
     public required string Email { get; set; }
     public required string HashedPassword { get; set; }
+    public byte[]? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpirationTime { get; set; }
     public UserRole Role { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime? LastLoggedAt { get; set; }

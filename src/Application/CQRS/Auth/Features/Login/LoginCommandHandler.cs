@@ -1,9 +1,9 @@
 namespace Application.CQRS.Auth.Features.Login;
 
-public sealed record LoginCommandRequest(DTOs.LoginRequest LoginRequest) : IRequest<LoginCommandResponse>;
-public sealed record LoginCommandResponse(string Token);
+public sealed record LoginCommandRequest(LoginRequest LoginRequest) : IRequest<LoginCommandResponse>;
+public sealed record LoginCommandResponse(LoginResponse Data);
 
-public sealed class LoginCommandHandler(IAuthService authService, IValidator<DTOs.LoginRequest> validator) : IRequestHandler<LoginCommandRequest, LoginCommandResponse>
+public sealed class LoginCommandHandler(IAuthService authService, IValidator<LoginRequest> validator) : IRequestHandler<LoginCommandRequest, LoginCommandResponse>
 {
     public async Task<LoginCommandResponse> Handle(LoginCommandRequest command, CancellationToken cancellationToken)
     {
