@@ -1,5 +1,3 @@
-using Application.Extensions;
-using Infrastructure.Extensions;
 using Persistence.Data;
 
 namespace Api.Extensions;
@@ -33,6 +31,9 @@ public static class Registrations
 
         services.AddCarter();
 
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddProblemDetails();
+
         return services;
     }
 
@@ -44,7 +45,9 @@ public static class Registrations
             context.Database.MigrateAsync().GetAwaiter().GetResult();
         }
 
-        app.UseCustomExceptionHandler();
+        //app.UseCustomExceptionHandler();
+
+        app.UseExceptionHandler();
 
         if (app.Environment.IsProduction())
         {
