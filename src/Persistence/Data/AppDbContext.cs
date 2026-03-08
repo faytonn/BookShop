@@ -2,13 +2,13 @@
 
 namespace Persistence.Data;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfiguration cfg) : DbContext(opts)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> opts/*, IConfiguration cfg*/) : DbContext(opts)
 {
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseNpgsql(cfg.GetConnectionString("Postgres"))
-            .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
-    }
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
+    //    //optionsBuilder.UseNpgsql(cfg.GetConnectionString("Postgres"))
+    //        /*.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning*//*))*/;
+    //}
     public DbSet<User> Users => Set<User>();
     public DbSet<Author> Author => Set<Author>();
     public DbSet<Book> Books => Set<Book>();
@@ -22,6 +22,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> opts, IConfigura
     public DbSet<Coupon> Coupons => Set<Coupon>();
     public DbSet<CategoryBook> CategoriesBooks => Set<CategoryBook>();
     public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderHistory> OrderHistories => Set<OrderHistory>();   
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

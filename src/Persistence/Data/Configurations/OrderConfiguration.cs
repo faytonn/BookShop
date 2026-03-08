@@ -6,5 +6,16 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     {
         builder.HasIndex(o => o.UserId);
 
+
+        builder.HasMany(o => o.OrderHistories).WithOne(oh => oh.Order).HasForeignKey(oh => oh.OrderId);
+    }
+}
+
+public class OrderHistoryConfiguration : IEntityTypeConfiguration<OrderHistory>
+{
+    public void Configure(EntityTypeBuilder<OrderHistory> builder)
+    {
+        builder.HasIndex(oh => oh.OrderId);
+        builder.HasOne(oh => oh.ChangedBy).WithMany().HasForeignKey(oh => oh.ChangedByUserId);
     }
 }

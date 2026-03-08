@@ -1,17 +1,4 @@
-using Microsoft.EntityFrameworkCore.Storage;
-using Persistence.Data;
-using Persistence.Repositories.Authors;
-using Persistence.Repositories.BookAuthors;
-using Persistence.Repositories.BookLanguages;
-using Persistence.Repositories.Books;
-using Persistence.Repositories.BookSellers;
-using Persistence.Repositories.Categories;
-using Persistence.Repositories.Coupons;
-using Persistence.Repositories.Languages;
-using Persistence.Repositories.Metrics;
-using Persistence.Repositories.Orders;
-using Persistence.Repositories.Sellers;
-using Persistence.Repositories.Users;
+
 
 namespace Persistence.UnitOfWorks;
 
@@ -28,9 +15,11 @@ public sealed class UnitOfWork : IUnitOfWork
     public ICouponRepository Coupons { get; }
     public ILanguageRepository Languages { get; }
     public IOrderRepository Orders { get; }
+    public IOrderHistoryRepository OrderHistories { get; }
     public ISellerRepository Sellers { get; }
     public IUserRepository Users { get; }
     public IMetricRepository Metrics { get; }
+
 
     public UnitOfWork(
         AppDbContext context,
@@ -43,6 +32,7 @@ public sealed class UnitOfWork : IUnitOfWork
         ICouponRepository couponRepository,
         ILanguageRepository languageRepository,
         IOrderRepository orderRepository,
+        IOrderHistoryRepository orderHistoryRepository,
         ISellerRepository sellerRepository,
         IUserRepository userRepository,
         IMetricRepository metricRepository
@@ -58,6 +48,7 @@ public sealed class UnitOfWork : IUnitOfWork
         Coupons = couponRepository;
         Languages = languageRepository;
         Orders = orderRepository;
+        OrderHistories = orderHistoryRepository;
         Sellers = sellerRepository;
         Users = userRepository;
         Metrics = metricRepository;

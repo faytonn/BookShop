@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Persistence.Data.Migrations
+namespace Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMig : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,7 +30,7 @@ namespace Persistence.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
                     Discount = table.Column<byte>(type: "smallint", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -247,7 +247,9 @@ namespace Persistence.Data.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     DisplayCode = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     CouponCode = table.Column<string>(type: "text", nullable: true),
+                    ShippingAddress = table.Column<string>(type: "text", nullable: false),
                     OrderItems = table.Column<string>(type: "text", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -264,6 +266,35 @@ namespace Persistence.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "OrderHistories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FromStatus = table.Column<int>(type: "integer", nullable: false),
+                    ToStatus = table.Column<int>(type: "integer", nullable: false),
+                    ChangedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderHistories_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderHistories_Users_ChangedByUserId",
+                        column: x => x.ChangedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Author_Name",
                 table: "Author",
@@ -274,6 +305,11 @@ namespace Persistence.Data.Migrations
                 name: "IX_BookAuthors_BookId",
                 table: "BookAuthors",
                 column: "BookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Books_Id",
+                table: "Books",
+                column: "Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookSellers_BookId_SellerId",
@@ -327,6 +363,16 @@ namespace Persistence.Data.Migrations
                 column: "MeasuredAt");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrderHistories_ChangedByUserId",
+                table: "OrderHistories",
+                column: "ChangedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderHistories_OrderId",
+                table: "OrderHistories",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Orders_UserId",
                 table: "Orders",
                 column: "UserId");
@@ -365,7 +411,7 @@ namespace Persistence.Data.Migrations
                 name: "Metrics");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "OrderHistories");
 
             migrationBuilder.DropTable(
                 name: "Seller");
@@ -381,6 +427,9 @@ namespace Persistence.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "Users");

@@ -91,6 +91,7 @@ public sealed class OrderService(IUnitOfWork unitOfWork, IHttpContextAccessor ac
             CouponCode = request.CouponCode,
             TotalPrice = totalPrice,
             UserId = userId,
+            OrderHistories = [new OrderHistory { Id = Guid.CreateVersion7(), OrderId = newOrderId, ToStatus = OrderStatus.Pending, Description = "Order created" }]
         };
 
 

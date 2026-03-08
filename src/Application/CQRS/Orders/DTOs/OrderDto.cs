@@ -20,6 +20,7 @@ public record struct AddOrderResponse
          Guid Id,
          decimal TotalPrice,
          Guid UserId,
+         //string ShippingAddress,
          List<OrderItem> OrderItems,
          string DisplayCode,
          string? CouponCode,
@@ -54,6 +55,7 @@ public record struct OrderDetailResponse
         Guid Id,
         string Code,
         decimal TotalPrice,
+        //string ShippingAddress,
         List<OrderItem> OrderItems,
         string? CouponCode,
         DateTime CreatedAt

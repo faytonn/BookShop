@@ -8,6 +8,7 @@ using Persistence.Repositories.Categories;
 using Persistence.Repositories.Coupons;
 using Persistence.Repositories.Languages;
 using Persistence.Repositories.Metrics;
+using Persistence.Repositories.OrderHistories;
 using Persistence.Repositories.Orders;
 using Persistence.Repositories.Sellers;
 using Persistence.Repositories.Users;
@@ -35,6 +36,7 @@ public interface IUnitOfWork : IDisposable
     ICouponRepository Coupons { get; }
     ILanguageRepository Languages {  get; }
     IOrderRepository Orders { get; }
+    IOrderHistoryRepository OrderHistories { get; }
     ISellerRepository Sellers { get; }
     IUserRepository Users {  get; }
     IMetricRepository Metrics { get; }
