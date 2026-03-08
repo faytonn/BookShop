@@ -12,7 +12,7 @@ public class Repository<T>(AppDbContext context, IHttpContextAccessor contextAcc
     private readonly ILogger<Repository<T>> _logger = logger;
 
     public void Add(T entity) => Table.Add(entity);
-    public async ValueTask AddAsync(T entity)=> await Table.AddAsync(entity, _cancellation);
+    public async ValueTask AddAsync(T entity) => await Table.AddAsync(entity, _cancellation);
     public void Update(T entity) => Table.Update(entity);
     public void Remove(T entity) => Table.Remove(entity);
     public int SaveChanges() => context.SaveChanges();
@@ -21,7 +21,7 @@ public class Repository<T>(AppDbContext context, IHttpContextAccessor contextAcc
     public T? Find(Guid id) => Table.Find(id);
     public async Task<T?> FindAsync(Guid id) => await Table.FindAsync([id], _cancellation);
     public IQueryable<T> GetAll(bool tracking = false) => tracking ? Table : Table.AsNoTracking();
-    public IQueryable<T> GetWhereAll(Expression<Func<T, bool>> filter) => GetAll().Where(filter);
+    public IQueryable<T> GetWhereAll(Expression<Func<T, bool>> filter, bool tracking = false) => GetAll(tracking).Where(filter);
     public async Task<IDbContextTransaction> BeginTransactionAsync()
        => await context.Database.BeginTransactionAsync(_cancellation);
 }

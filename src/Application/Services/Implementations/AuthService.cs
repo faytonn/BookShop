@@ -1,26 +1,35 @@
-using Application.CQRS.Auth.DTOs;
-using Application.Services.Abstractions;
-using Domain.Models;
-using Infrastructure.Providers.Tokens;
-using Microsoft.EntityFrameworkCore;
-using Persistence.UnitOfWorks;
-using System.Security.Claims;
-
 namespace Application.Services.Implementations;
 
 public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
 {
-    public async Task<string> LoginAsync(LoginRequest request)
+    public async Task<LoginResponse> LoginAsync(LoginRequest request)
     {
         if (string.IsNullOrEmpty(request.Email.Trim()) || string.IsNullOrEmpty(request.Password.Trim()))
             throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
-        var user = await unitOfWork.Users.GetWhereAll(e => e.Email.Equals(request.Email.ToLower()))
+        var user = await unitOfWork.Users.GetWhereAll(e => e.Email.Equals(request.Email.ToLower()), true)
                                        .FirstOrDefaultAsync();
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.HashedPassword)) throw new /*BadRequest*/InvalidOperationException("Invalid format for email or password");
 
-        var token = tokenProvider.GenerateJwtToken(user);
+        var (accessToken, accessTokenExpiration) = tokenProvider.GenerateJwtToken(user);
+        var (refreshToken, refreshTokenExpiration) = tokenProvider.GenerateRefreshToken();
 
-        return token;
+        try
+        {
+            user.RefreshToken = Convert.FromBase64String(refreshToken);
+            user.RefreshTokenExpirationTime = refreshTokenExpiration;
+
+            await unitOfWork.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new BadRequestException(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            throw new BadRequestException(ex.Message);
+        }
+
+        return new LoginResponse(accessToken, refreshToken, accessTokenExpiration, refreshTokenExpiration);
     }
 
     public async Task RegisterAsync(RegisterRequest request)

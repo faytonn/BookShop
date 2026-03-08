@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Persistence.Data;
 
 #nullable disable
 
-namespace Persistence.Migrations
+namespace Persistence.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260221095243_AddedRefreshTokenColumnIntoUsers")]
+    partial class AddedRefreshTokenColumnIntoUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,8 +69,7 @@ namespace Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
@@ -79,8 +81,6 @@ namespace Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Id");
 
                     b.ToTable("Books");
                 });
@@ -279,13 +279,6 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ShippingAddress")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric");
 
@@ -297,39 +290,6 @@ namespace Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("Domain.Models.OrderHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ChangedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("FromStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("ToStatus")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChangedByUserId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderHistories");
                 });
 
             modelBuilder.Entity("Domain.Models.Seller", b =>
@@ -509,23 +469,6 @@ namespace Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Models.OrderHistory", b =>
-                {
-                    b.HasOne("Domain.Models.User", "ChangedBy")
-                        .WithMany()
-                        .HasForeignKey("ChangedByUserId");
-
-                    b.HasOne("Domain.Models.Order", "Order")
-                        .WithMany("OrderHistories")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChangedBy");
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("Domain.Models.Author", b =>
                 {
                     b.Navigation("Books");
@@ -550,11 +493,6 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Models.Language", b =>
                 {
                     b.Navigation("Books");
-                });
-
-            modelBuilder.Entity("Domain.Models.Order", b =>
-                {
-                    b.Navigation("OrderHistories");
                 });
 
             modelBuilder.Entity("Domain.Models.User", b =>

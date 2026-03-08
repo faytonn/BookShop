@@ -1,6 +1,5 @@
 ﻿global using Persistence;
 global using Microsoft.EntityFrameworkCore;
-global using Domain.Models;
 global using Domain.Exceptions.BaseException;
 global using System.Net;
 global using System.Text;
@@ -12,3 +11,6 @@ global using Api.Middlewares;
 global using Api.Extensions;
 global using Application.Extensions;
 global using Infrastructure.Extensions;
+global using Microsoft.AspNetCore.Diagnostics;
+global using Domain.Exceptions;
+global using Microsoft.AspNetCore.Mvc;

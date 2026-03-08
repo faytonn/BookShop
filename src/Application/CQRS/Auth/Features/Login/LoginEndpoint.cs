@@ -7,9 +7,9 @@ public sealed class LoginEndpoint : ICarterModule
         app.MapPost("api/v1/auth/login", Handler);
     }
 
-    private static async Task<IResult> Handler(ISender sender, DTOs.LoginRequest req)
+    private static async Task<IResult> Handler(ISender sender, LoginRequest req)
     {
         var response = await sender.Send(new LoginCommandRequest(req));
-        return Results.Ok(new DTOs.LoginResponse(response.Token));
+        return Results.Ok(response.Data);
     }
 }
