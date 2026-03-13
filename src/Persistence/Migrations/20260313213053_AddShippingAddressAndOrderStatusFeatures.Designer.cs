@@ -9,11 +9,11 @@ using Persistence.Data;
 
 #nullable disable
 
-namespace Persistence.Data.Migrations
+namespace Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260221095243_AddedRefreshTokenColumnIntoUsers")]
-    partial class AddedRefreshTokenColumnIntoUsers
+    [Migration("20260313213053_AddShippingAddressAndOrderStatusFeatures")]
+    partial class AddShippingAddressAndOrderStatusFeatures
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,7 +69,8 @@ namespace Persistence.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
@@ -81,6 +82,8 @@ namespace Persistence.Data.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Id");
 
                     b.ToTable("Books");
                 });
@@ -279,6 +282,9 @@ namespace Persistence.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric");
 
@@ -290,6 +296,42 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ChangedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("FromStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PictureUrl")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ToStatus")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderHistories");
                 });
 
             modelBuilder.Entity("Domain.Models.Seller", b =>
@@ -466,7 +508,56 @@ namespace Persistence.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("Domain.Models.ShippingAddress", "ShippingAddress", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId");
+
+                            b1.Property<string>("City");
+
+                            b1.Property<string>("Country");
+
+                            b1.Property<string>("FullAddress")
+                                .IsRequired();
+
+                            b1.Property<double?>("Latitude");
+
+                            b1.Property<double?>("Longitude");
+
+                            b1.Property<string>("ZipCode");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Orders");
+
+                            b1
+                                .ToJson("ShippingAddress")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
+                    b.Navigation("ShippingAddress")
+                        .IsRequired();
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderHistory", b =>
+                {
+                    b.HasOne("Domain.Models.User", "ChangedBy")
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId");
+
+                    b.HasOne("Domain.Models.Order", "Order")
+                        .WithMany("OrderHistories")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChangedBy");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Domain.Models.Author", b =>
@@ -493,6 +584,11 @@ namespace Persistence.Data.Migrations
             modelBuilder.Entity("Domain.Models.Language", b =>
                 {
                     b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("Domain.Models.Order", b =>
+                {
+                    b.Navigation("OrderHistories");
                 });
 
             modelBuilder.Entity("Domain.Models.User", b =>

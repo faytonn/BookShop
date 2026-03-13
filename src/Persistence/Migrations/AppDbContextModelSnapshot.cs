@@ -279,10 +279,6 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ShippingAddress")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -319,6 +315,9 @@ namespace Persistence.Migrations
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("PictureUrl")
+                        .HasColumnType("text");
 
                     b.Property<int>("ToStatus")
                         .HasColumnType("integer");
@@ -504,6 +503,38 @@ namespace Persistence.Migrations
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Domain.Models.ShippingAddress", "ShippingAddress", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId");
+
+                            b1.Property<string>("City");
+
+                            b1.Property<string>("Country");
+
+                            b1.Property<string>("FullAddress")
+                                .IsRequired();
+
+                            b1.Property<double?>("Latitude");
+
+                            b1.Property<double?>("Longitude");
+
+                            b1.Property<string>("ZipCode");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Orders");
+
+                            b1
+                                .ToJson("ShippingAddress")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
+                    b.Navigation("ShippingAddress")
                         .IsRequired();
 
                     b.Navigation("User");

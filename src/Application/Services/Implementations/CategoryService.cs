@@ -42,7 +42,7 @@ public sealed class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
 
     public CategoryResponse CreateCategory(CategoryRequest request)
     {
-        if (request.ParentId != Guid.Empty)
+        if (request.ParentId is not null && request.ParentId != Guid.Empty)
         {
             var parentExists = unitOfWork.Categories
                 .GetWhereAll(c => c.Id == request.ParentId)
@@ -78,7 +78,7 @@ public sealed class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
         if (category is null)
             return null;
 
-        if (request.ParentId != Guid.Empty && request.ParentId != categoryId)
+        if (request.ParentId is not null && request.ParentId != Guid.Empty && request.ParentId != categoryId)
         {
             var parentExists = unitOfWork.Categories
                 .GetWhereAll(c => c.Id == request.ParentId)

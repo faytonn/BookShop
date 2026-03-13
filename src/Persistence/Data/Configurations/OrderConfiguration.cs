@@ -6,6 +6,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     {
         builder.HasIndex(o => o.UserId);
 
+        builder.OwnsOne(o => o.ShippingAddress, sa =>
+        {
+            sa.ToJson();
+        });
 
         builder.HasMany(o => o.OrderHistories).WithOne(oh => oh.Order).HasForeignKey(oh => oh.OrderId);
     }

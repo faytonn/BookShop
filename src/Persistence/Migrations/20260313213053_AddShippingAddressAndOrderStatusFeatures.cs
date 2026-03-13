@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class AddShippingAddressAndOrderStatusFeatures : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -134,6 +134,8 @@ namespace Persistence.Migrations
                     Surname = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     HashedPassword = table.Column<string>(type: "text", nullable: false),
+                    RefreshToken = table.Column<byte[]>(type: "bytea", nullable: true),
+                    RefreshTokenExpirationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Role = table.Column<byte>(type: "smallint", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     LastLoggedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -249,11 +251,11 @@ namespace Persistence.Migrations
                     DisplayCode = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     CouponCode = table.Column<string>(type: "text", nullable: true),
-                    ShippingAddress = table.Column<string>(type: "text", nullable: false),
                     OrderItems = table.Column<string>(type: "text", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ShippingAddress = table.Column<string>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -272,10 +274,11 @@ namespace Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrderId = table.Column<Guid>(type: "uuid", nullable: false),
-                    FromStatus = table.Column<int>(type: "integer", nullable: false),
+                    FromStatus = table.Column<int>(type: "integer", nullable: true),
                     ToStatus = table.Column<int>(type: "integer", nullable: false),
-                    ChangedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ChangedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
+                    PictureUrl = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -291,8 +294,7 @@ namespace Persistence.Migrations
                         name: "FK_OrderHistories_Users_ChangedByUserId",
                         column: x => x.ChangedByUserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
