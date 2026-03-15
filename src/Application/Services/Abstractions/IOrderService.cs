@@ -9,6 +9,7 @@ public interface IOrderService
     Task<OrderDetailResponse> GetOrderDetailAsync(Guid id);
     //Task<(Order order, BookOrderDTO[] items)?> GetOrderWithItemsAsync(Guid id);
     //bool DeleteOrder(Guid id);
+    Task CancelOrderAsync(Guid orderId);
     Task DeleteOrderAsync(Guid orderId);
 
 }

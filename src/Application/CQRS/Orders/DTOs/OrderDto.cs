@@ -126,3 +126,15 @@ public record struct OrderHistoryResponse
         string? PictureUrl,
         DateTime CreatedAt
     );
+
+
+// cancel order dto
+public record CancelOrderRequest
+    (
+        Guid OrderId
+    );
+
+public record CancelOrderResponse
+    (
+        
+    );

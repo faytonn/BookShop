@@ -13,6 +13,7 @@ public class Order : AuditableEntity<Guid>, ISoftDelete
 
     public decimal TotalPrice { get; set; }
     public bool IsDeleted { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public List<OrderHistory> OrderHistories { get; set; } = [];
 }

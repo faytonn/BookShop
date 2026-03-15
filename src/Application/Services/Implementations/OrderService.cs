@@ -1,3 +1,5 @@
+using System.Net.NetworkInformation;
+
 namespace Application.Services.Implementations;
 
 public sealed class OrderService(IUnitOfWork unitOfWork, IHttpContextAccessor accessor) : IOrderService
@@ -299,6 +301,44 @@ public sealed class OrderService(IUnitOfWork unitOfWork, IHttpContextAccessor ac
             histories,
             order.CreatedAt
         );
+    }
+
+    public async Task CancelOrderAsync(Guid orderId)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            throw new InvalidDataException("Invalid or missing token.");
+
+        var order = await unitOfWork.Orders.GetWhereAll(o => o.Id == orderId, tracking: true).FirstOrDefaultAsync();
+
+        if (order is null)
+            throw new NullReferenceException("Order not found.");
+
+        var fromStatus = order.Status;
+        var toStatus = OrderStatus.Canceled;
+
+        if (!IsValidTransition(fromStatus, toStatus))
+            throw new InvalidOperationException(
+                $"Cannot transition from {fromStatus} to {toStatus}. " +
+                $"Allowed transitions from {fromStatus}: " +
+                $"{(AllowedTransitions.TryGetValue(fromStatus, out var a) ? string.Join(", ", a) : "none (terminal status)")}.");
+
+        order.Status = OrderStatus.Canceled;
+
+        var history = new OrderHistory
+        {
+            Id = Guid.CreateVersion7(),
+            OrderId = orderId,
+            FromStatus = fromStatus,
+            ToStatus = toStatus,
+            ChangedByUserId = userId
+            //Description = request.Description,
+            //PictureUrl = request.PictureUrl
+        };
+
+        await unitOfWork.OrderHistories.AddAsync(history);
+
+        await unitOfWork.Orders.SaveChangesAsync();
     }
 
     public async Task DeleteOrderAsync(Guid orderId)
