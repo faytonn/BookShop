@@ -69,6 +69,14 @@ public record struct UpdateOrderStatusResponse
         DateTime ChangedAt
     );
 
+public record struct CreateCheckoutSessionResponse
+    (
+        Guid OrderId,
+        string DisplayCode,
+        string SessionId,
+        string CheckoutUrl
+    );
+
 
 // get all orders (admin) dto
 

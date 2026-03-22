@@ -15,7 +15,7 @@ builder.Services.AddValidatorsFromAssembly(typeof(Application.Extensions.Registr
 builder.Services
     .AddApplicationRegistrations()
     .AddPersistenceServices(builder.Configuration)
-    .AddInfrastructureRegistrations()
+    .AddInfrastructureRegistrations(builder.Configuration)
     .AddPresentationRegistrations(builder.Environment, builder.Configuration);
 
 var app = builder.Build();

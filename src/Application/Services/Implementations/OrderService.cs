@@ -1,8 +1,9 @@
 using System.Net.NetworkInformation;
+using Shared.Abstractions.Payments;
 
 namespace Application.Services.Implementations;
 
-public sealed class OrderService(IUnitOfWork unitOfWork, IHttpContextAccessor accessor) : IOrderService
+public sealed class OrderService(IUnitOfWork unitOfWork, IHttpContextAccessor accessor, IPaymentService paymentService) : IOrderService
 {
     private readonly ClaimsPrincipal User = accessor.HttpContext?.User ?? throw new InvalidDataException("No user found.");
 
@@ -153,6 +154,44 @@ public sealed class OrderService(IUnitOfWork unitOfWork, IHttpContextAccessor ac
             GenerateDisplayCode(newOrder.Id),
             newOrder.CouponCode,
             newOrder.CreatedAt);
+    }
+
+    public async Task<CreateCheckoutSessionResponse> CreateCheckoutSessionAsync(Guid orderId)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            throw new InvalidDataException("Invalid or missing token.");
+
+        var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+        var isAdmin = string.Equals(roleClaim, Enum.GetName(UserRole.Admin), StringComparison.OrdinalIgnoreCase)
+            || string.Equals(roleClaim, Enum.GetName(UserRole.SuperAdmin), StringComparison.OrdinalIgnoreCase);
+
+        var order = await unitOfWork.Orders
+            .GetWhereAll(o => o.Id == orderId && !o.IsDeleted)
+            .FirstOrDefaultAsync();
+
+        if (order is null)
+            throw new NullReferenceException("Order not found.");
+
+        if (order.UserId != userId && !isAdmin)
+            throw new InvalidDataException("You are not allowed to create payment for this order.");
+
+        var orderUser = await unitOfWork.Users.FindAsync(order.UserId);
+
+        var session = await paymentService.CreateCheckoutSessionAsync(new PaymentCheckoutRequest(
+            order.TotalPrice,
+            "usd",
+            order.Id,
+            order.DisplayCode,
+            orderUser?.Email
+        ));
+
+        return new CreateCheckoutSessionResponse(
+            order.Id,
+            order.DisplayCode,
+            session.SessionId,
+            session.CheckoutUrl
+        );
     }
 
 
