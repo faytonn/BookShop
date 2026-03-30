@@ -1,3 +1,6 @@
+using Domain.Models;
+using Persistence.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMemoryCache();

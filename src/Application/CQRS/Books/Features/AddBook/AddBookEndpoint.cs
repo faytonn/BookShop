@@ -11,7 +11,7 @@ public sealed class AddBookEndpoint : ICarterModule
             .RequireAuthorization(policy => policy.RequireRole(Enum.GetName(UserRole.Admin)!, Enum.GetName(UserRole.SuperAdmin)!, Enum.GetName(UserRole.Seller)!));
     }
 
-    private static async Task<IResult> Handler(ISender sender, DTOs.BookRequest req, IHttpContextAccessor accessor)
+    private static async Task<IResult> Handler(ISender sender, BookRequest req, IHttpContextAccessor accessor)
     {
         var sellerId = accessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
