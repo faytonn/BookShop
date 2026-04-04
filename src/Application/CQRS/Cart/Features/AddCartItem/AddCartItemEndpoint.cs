@@ -2,11 +2,11 @@
 
 public sealed class AddCartItemEndpoint : ICarterModule
 {
-    public record AddCartItemRequest(List<CartItemDto> Items);
+    public record AddCartItemRequest(List<AddCartItemDto> Items);
 
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("/cart/{userId}/items", Handler);
+        app.MapPost("api/v1/cart/{userId}/items", Handler);
     }
 
     private static async Task<IResult> Handler(Guid userId, AddCartItemRequest request, ISender sender)
