@@ -8,7 +8,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         var detail = exception.GetType().Name;
         var statusCode = httpContext.Response.StatusCode = exception switch
         {
-            BadRequestException => StatusCodes.Status400BadRequest,
+            BadRequestException or InvalidOperationException => StatusCodes.Status400BadRequest,
             NotFoundException => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status500InternalServerError,
         };

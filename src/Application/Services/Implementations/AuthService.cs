@@ -1,6 +1,6 @@
 namespace Application.Services.Implementations;
 
-public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
+public sealed class AuthService(IUnitOfWork unitOfWork, AppDbContext context, /*[FromServices] */TokenProvider tokenProvider) : IAuthService
 {
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
     {
@@ -62,14 +62,20 @@ public sealed class AuthService(IUnitOfWork unitOfWork, /*[FromServices] */Token
             });
         }
 
+        context.Carts.Add(new Cart
+        {
+            Id = Guid.CreateVersion7(),
+            UserId = newUser.Id,
+        });
+
+        unitOfWork.Users.Add(newUser);
         try
         {
-            unitOfWork.Users.Add(newUser);
             await unitOfWork.SaveChangesAsync();
         }
-        catch (Domain.Exceptions.DbUpdateException ex)
+        catch (DbUpdateException ex)
         {
-            throw new Domain.Exceptions.DbUpdateException($"An error occured: {ex.Message}");
+            throw new DbUpdateException($"An error occured: {ex.Message}");
         }
         catch (Exception ex)
         {

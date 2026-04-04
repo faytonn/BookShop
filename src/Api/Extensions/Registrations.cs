@@ -6,8 +6,6 @@ public static class Registrations
 {
     public static IServiceCollection AddPresentationRegistrations(this IServiceCollection services, IWebHostEnvironment env, IConfiguration cfg)
     {
-        services.AddControllers();
-
         services.AddAuthentication(opt =>
         {
             opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -56,7 +54,5 @@ public static class Registrations
 
         app.UseAuthentication();
         app.UseAuthorization();
-
-        app.MapControllers();
     }
 }
